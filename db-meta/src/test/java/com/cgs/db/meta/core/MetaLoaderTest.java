@@ -29,8 +29,12 @@ public class MetaLoaderTest {
 	@Test
 //	@Ignore
 	public void getTable(){
-		String tableName="Dataset";//Oracle:"CH_RDDATA",mySql:"person_info":sql server:"Dataset"
+		long startTime=System.currentTimeMillis();
+		String tableName="des_table";//Oracle:"PUMP",mySql:"person_info":sql server:"Dataset"
 		Table table=metaLoader.getTable(tableName);
 		System.out.println(table);
+		
+		long endTime=System.currentTimeMillis();
+		System.out.println("耗时："+(endTime-startTime));
 	}
 }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
+import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.Table;
 
 public class OracleSqlMetaLoader extends AbstractSqlMetaLoader {
@@ -61,4 +62,5 @@ public class OracleSqlMetaLoader extends AbstractSqlMetaLoader {
 		Table table=crawlTableInfo(null, schemaName, tableName, level);
 		return table;
 	}
+
 }

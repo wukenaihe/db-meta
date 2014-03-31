@@ -10,7 +10,7 @@ public class Table {
 	
 	private Map<String, Column> columns;
 	private PrimaryKey primaryKey;
-	private List<ForeignKey> foreignkeys;
+	private Map<String,ForeignKey> foreignkeys;
 	private List<Index> indexs;
 	private List<Constraint> constraints;
 	private List<Trigger> triggers;
@@ -51,10 +51,11 @@ public class Table {
 	public void setPrimaryKey(PrimaryKey primaryKey) {
 		this.primaryKey = primaryKey;
 	}
-	public List<ForeignKey> getForeignkeys() {
+
+	public Map<String, ForeignKey> getForeignkeys() {
 		return foreignkeys;
 	}
-	public void setForeignkeys(List<ForeignKey> foreignkeys) {
+	public void setForeignkeys(Map<String, ForeignKey> foreignkeys) {
 		this.foreignkeys = foreignkeys;
 	}
 	public List<Index> getIndexs() {
@@ -69,7 +70,7 @@ public class Table {
 	public void setTriggers(List<Trigger> triggers) {
 		this.triggers = triggers;
 	}
-	@Override
+	
 	public String toString() {
 		return "Table [tableType=" + tableType + ", name=" + name + ", comment=" + comment + ", columns=" + columns + ", primaryKey=" + primaryKey
 				+ ", foreignkeys=" + foreignkeys + ", indexs=" + indexs + ", constraints=" + constraints + ", triggers=" + triggers + "]";
