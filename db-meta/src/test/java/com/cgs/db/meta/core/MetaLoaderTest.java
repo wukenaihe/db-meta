@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -27,13 +28,24 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void getTable(){
 		long startTime=System.currentTimeMillis();
 		String tableName="des_table";//Oracle:"PUMP",mySql:"person_info":sql server:"Dataset"
 		Table table=metaLoader.getTable(tableName);
 		System.out.println(table);
 		
+		long endTime=System.currentTimeMillis();
+		System.out.println("耗时："+(endTime-startTime));
+	}
+	
+	@Test
+//	@Ignore
+	public void getSchemaInfos(){
+		long startTime=System.currentTimeMillis();
+		
+		Set<SchemaInfo> schemaInfos=metaLoader.getSchemaInfos();
+		System.out.println(schemaInfos);
 		long endTime=System.currentTimeMillis();
 		System.out.println("耗时："+(endTime-startTime));
 	}

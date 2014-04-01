@@ -15,6 +15,7 @@ import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.MetaLoader;
+import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
@@ -136,5 +137,20 @@ public class MetaLoaderImpl implements MetaLoader {
 			JDBCUtils.closeConnection(con);
 		}
 	}
+
+	public Set<SchemaInfo> getSchemaInfos() {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=getMetaCrawler(con);
+			return metaCrawler.getSchemaInfos();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
 
 }

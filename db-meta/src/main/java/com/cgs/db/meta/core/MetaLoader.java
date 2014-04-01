@@ -2,6 +2,7 @@ package com.cgs.db.meta.core;
 
 import java.util.Set;
 
+import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
 public interface MetaLoader {
@@ -20,4 +21,11 @@ public interface MetaLoader {
 	 * @return Table
 	 */
 	Table getTable(String tableName);
+	
+	/**
+	 * Gets the database's schema information
+	 * 
+	 * @return SchemaInfo
+	 */
+	Set<SchemaInfo> getSchemaInfos();
 }

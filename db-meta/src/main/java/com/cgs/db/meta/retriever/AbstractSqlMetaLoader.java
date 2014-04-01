@@ -29,6 +29,7 @@ import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.ForeignKeyDeferrability;
 import com.cgs.db.meta.schema.ForeignKeyUpdateRule;
 import com.cgs.db.meta.schema.PrimaryKey;
+import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableType;
 import com.cgs.db.util.Assert;
@@ -139,7 +140,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 	 * @param tableName
 	 * @return
 	 */
-	protected Map<String, Column> crawlColumnInfo(String tableName) {
+	public Map<String, Column> crawlColumnInfo(String tableName) {
 		Map<String, Column> columns = new HashMap<String, Column>();
 		try {
 			ResultSet rs = dbm.getColumns(null, null, tableName, null);
@@ -172,7 +173,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 
 	public abstract Table invokeCrawlTableInfo(String tableName, SchemaInfoLevel level);
 
-	protected PrimaryKey crawlPrimaryKey(String tableName) {
+	public PrimaryKey crawlPrimaryKey(String tableName) {
 		List<String> columns = new ArrayList<String>();
 		TreeMap<Integer, String> columnMaps = new TreeMap<Integer, String>();
 		PrimaryKey pk = new PrimaryKey();
@@ -198,7 +199,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return pk;
 	}
 
-	protected Map<String,ForeignKey> crawlForeignKey(String tableName) {
+	public Map<String,ForeignKey> crawlForeignKey(String tableName) {
 		Map<String,ForeignKey> foreignKeys = new HashMap<String,ForeignKey>();
 		try {
 			ResultSet rs = dbm.getImportedKeys(null, null, tableName);
@@ -245,4 +246,9 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 				
 		return foreignKeyColumnReference;
 	}
+	
+	
+//	public Set<SchemaInfo> getSchemaInfos(){
+//		return null;
+//	}
 }

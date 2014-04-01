@@ -49,6 +49,7 @@ public class SchemaInfo implements Serializable {
 	}
 
 	public String getFullName() {
+		buildFullName();
 		return fullName;
 	}
 
@@ -57,6 +58,7 @@ public class SchemaInfo implements Serializable {
 	}
 	
 	public String toString(){
+		buildFullName();
 		return getFullName();
 	}
 }
