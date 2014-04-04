@@ -15,6 +15,9 @@ import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.MetaLoader;
+import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.DatabaseInfo;
+import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.util.Assert;
@@ -144,6 +147,42 @@ public class MetaLoaderImpl implements MetaLoader {
 		try{
 			metaCrawler=getMetaCrawler(con);
 			return metaCrawler.getSchemaInfos();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Schema getSchema() {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=getMetaCrawler(con);
+			return metaCrawler.getSchema();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Database getDatabase() {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		Database database=new Database();
+		try{
+			metaCrawler=getMetaCrawler(con);
+			DatabaseInfo databaseInfo=metaCrawler.getDatabaseInfo();
+			database.setDatabaseInfo(databaseInfo);
+			
+//			Set<SchemaInfo> schemas=metaCrawler.getSchemaInfos();
+//			for (SchemaInfo schemaInfo : schemas) {
+//				
+//			}
+			return database;
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);

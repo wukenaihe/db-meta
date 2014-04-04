@@ -18,17 +18,20 @@ import oracle.net.aso.d;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.exception.SchemaInfoLevelException;
 import com.cgs.db.meta.core.MetaLoader;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Column;
+import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.ForeignKey;
 import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.ForeignKeyDeferrability;
 import com.cgs.db.meta.schema.ForeignKeyUpdateRule;
 import com.cgs.db.meta.schema.PrimaryKey;
+import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableType;
@@ -57,6 +60,23 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		ResultSet rs;
 		try {
 			rs = dbm.getTables(null, null, null, new String[] { "TABLE" });
+
+			while (rs.next()) {
+				String tableName = rs.getString("TABLE_NAME");
+				tables.add(tableName);
+			}
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+
+		return tables;
+	}
+	
+	public Set<String> getTableNames(SchemaInfo schemaInfo) {
+		Set<String> tables = new HashSet<String>();
+		ResultSet rs;
+		try {
+			rs = dbm.getTables(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), null, new String[] { "TABLE" });
 
 			while (rs.next()) {
 				String tableName = rs.getString("TABLE_NAME");
@@ -247,8 +267,83 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return foreignKeyColumnReference;
 	}
 	
+	public Schema getSchema(){
+		ResultSet rs;
+		SchemaInfo schemaInfo=null;
+		SchemaInfoLevel level=SchemaInfoLevel.standard();
+		Schema schema=new Schema();
+		Map<String, Table> tables=new HashMap<String, Table>();
+		//TODO use other method to information
+		try {
+			schemaInfo=getSchemaInfo();
+			schema.setSchemaInfo(schemaInfo);
+			Set<String> tableNames=getTableNames();
+			for (String string : tableNames) {
+				Table table=getTable(string);
+				tables.put(string, table);
+			}
+			schema.setTables(tables);
+		} catch (DataAccessException e) {
+			throw new DatabaseMetaGetMetaException("get schema information error!", e);
+		}
+		
+		return schema;
+	}
 	
-//	public Set<SchemaInfo> getSchemaInfos(){
-//		return null;
-//	}
+	public Schema getSchema(SchemaInfo schemaInfo){
+		ResultSet rs;
+		SchemaInfoLevel level=SchemaInfoLevel.standard();
+		Schema schema=new Schema();
+		Map<String, Table> tables=new HashMap<String, Table>();
+		//TODO use other method to information
+		try {
+			Set<String> tableNames=getTableNames(schemaInfo);
+			for (String string : tableNames) {
+				Table table=getTable(string);
+				tables.put(string, table);
+			}
+			schema.setTables(tables);
+		} catch (DataAccessException e) {
+			throw new DatabaseMetaGetMetaException("get schema information error!", e);
+		}
+		
+		return schema;
+	}
+	
+	protected SchemaInfo getSchemaInfo(){
+		ResultSet rs;
+		SchemaInfo schemaInfo = null;
+		try {
+			rs = dbm.getTables(null, null, null, new String[] { "TABLE" });
+
+			while (rs.next()) {
+				String catalog = rs.getString("TABLE_CAT");
+				String schema=rs.getString("TABLE_SCHEM");
+				schemaInfo=new SchemaInfo(catalog, schema);
+				break;
+			}
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+		return schemaInfo;
+	}
+	
+	
+	
+	public DatabaseInfo getDatabaseInfo(){
+		try {
+			String productName=dbm.getDatabaseProductName();
+			String productVersion=dbm.getDatabaseProductVersion();
+			String userName=dbm.getUserName();
+			DatabaseInfo databaseInfo=new DatabaseInfo();
+			databaseInfo.setProductName(productName);
+			databaseInfo.setProductVersion(productVersion);
+			databaseInfo.setUserName(userName);
+			return databaseInfo;
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+		
+		
+	}
 }

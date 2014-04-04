@@ -2,6 +2,8 @@ package com.cgs.db.meta.core;
 
 import java.util.Set;
 
+import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
@@ -28,4 +30,19 @@ public interface MetaLoader {
 	 * @return SchemaInfo
 	 */
 	Set<SchemaInfo> getSchemaInfos();
+	
+	/**
+	 * get current datasource own Schema
+	 * 
+	 * @return Schema
+	 */
+	Schema getSchema();
+	
+	
+	/**
+	 * 
+	 * 
+	 * @return
+	 */
+	Database getDatabase();
 }

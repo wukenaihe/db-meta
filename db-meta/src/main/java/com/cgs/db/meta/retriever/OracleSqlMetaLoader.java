@@ -80,4 +80,15 @@ public class OracleSqlMetaLoader extends AbstractSqlMetaLoader {
 		}
 		return schemaInfos;
 	}
+	
+	protected SchemaInfo getSchemaInfo(){
+		String schema=null;
+		try {
+			schema = dbm.getUserName();
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+		
+		return new SchemaInfo(null, schema);
+	}
 }

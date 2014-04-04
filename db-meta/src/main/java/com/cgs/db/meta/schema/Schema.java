@@ -34,8 +34,10 @@ public class Schema implements Serializable{
 	public void setTables(Map<String, Table> tables) {
 		this.tables = tables;
 	}
-	
-	
-	
+
+	@Override
+	public String toString() {
+		return "Schema [schemaInfo=" + schemaInfo + ", tables=" + tables + "]";
+	}
 	
 }
