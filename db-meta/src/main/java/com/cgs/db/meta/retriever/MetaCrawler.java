@@ -26,5 +26,7 @@ public interface MetaCrawler {
 	
 	Schema getSchema();
 	
+	Schema getSchema(SchemaInfo schemaInfo);
+	
 	DatabaseInfo getDatabaseInfo();
 }

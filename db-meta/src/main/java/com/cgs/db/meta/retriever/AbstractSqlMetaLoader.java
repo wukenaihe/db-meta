@@ -71,7 +71,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 
 		return tables;
 	}
-	
+
 	public Set<String> getTableNames(SchemaInfo schemaInfo) {
 		Set<String> tables = new HashSet<String>();
 		ResultSet rs;
@@ -124,30 +124,41 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 	public Table getTable(String tableName) {
 		return getTable(tableName, SchemaInfoLevel.standard());
 	}
+	
+	public Table getTable(String tableName, SchemaInfoLevel level){
+		return getTable(tableName, level,null);
+	}
 
-	public Table getTable(String tableName, SchemaInfoLevel level) {
+	public Table getTable(String tableName, SchemaInfoLevel level, SchemaInfo schemaInfo) {
 		logger.debug("crawl table information,table name is " + tableName + " ;use standard schemaInfoLevel");
 
 		Assert.notNull(tableName, "tableName must not be null");
 		Assert.notEmpty(tableName, "tableName must not be an empty string");
 		// Get table base information
-		Table table = invokeCrawlTableInfo(tableName, level);
+
+		Table table;
+
+		if (schemaInfo == null) {
+			table = invokeCrawlTableInfo(tableName, level);
+		} else {
+			table = crawlTableInfo(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName, level);
+		}
 
 		// crawl column information
 		if (level.isRetrieveTableColumns()) {
-			Map<String, Column> columns = crawlColumnInfo(tableName);
+			Map<String, Column> columns = crawlColumnInfo(tableName,schemaInfo);
 			table.setColumns(columns);
 		}
 
 		// crawl primary key
 		if (level.isRetrievePrimaryKey()) {
-			PrimaryKey pk = crawlPrimaryKey(tableName);
+			PrimaryKey pk = crawlPrimaryKey(tableName,schemaInfo);
 			table.setPrimaryKey(pk);
 		}
-		
-		//crawl 
-		if(level.isRetrieveForeignKeys()){
-			Map<String, ForeignKey> foreignKeys=crawlForeignKey(tableName);
+
+		// crawl
+		if (level.isRetrieveForeignKeys()) {
+			Map<String, ForeignKey> foreignKeys = crawlForeignKey(tableName,schemaInfo);
 			table.setForeignkeys(foreignKeys);
 		}
 
@@ -160,10 +171,15 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 	 * @param tableName
 	 * @return
 	 */
-	public Map<String, Column> crawlColumnInfo(String tableName) {
+	public Map<String, Column> crawlColumnInfo(String tableName,SchemaInfo schemaInfo) {
 		Map<String, Column> columns = new HashMap<String, Column>();
+		ResultSet rs;
 		try {
-			ResultSet rs = dbm.getColumns(null, null, tableName, null);
+			if(schemaInfo==null){
+				rs = dbm.getColumns(null, null, tableName, null);
+			}else{
+				rs=dbm.getColumns(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName, null);
+			}
 			while (rs.next()) {
 				Column column = packColumn(rs);
 				columns.put(column.getName(), column);
@@ -173,6 +189,12 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		}
 		return columns;
 	}
+	
+	public Map<String, Column> crawlColumnInfo(String tableName){
+		return crawlColumnInfo(tableName,null);
+	}
+	
+	
 
 	protected Column packColumn(ResultSet rs) throws SQLException {
 		String name = rs.getString("COLUMN_NAME");
@@ -193,12 +215,17 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 
 	public abstract Table invokeCrawlTableInfo(String tableName, SchemaInfoLevel level);
 
-	public PrimaryKey crawlPrimaryKey(String tableName) {
+	public PrimaryKey crawlPrimaryKey(String tableName,SchemaInfo schemaInfo) {
 		List<String> columns = new ArrayList<String>();
 		TreeMap<Integer, String> columnMaps = new TreeMap<Integer, String>();
 		PrimaryKey pk = new PrimaryKey();
+		ResultSet rs;
 		try {
-			ResultSet rs = dbm.getPrimaryKeys(null, null, tableName);
+			if(schemaInfo==null){
+				rs = dbm.getPrimaryKeys(null, null, tableName);
+			}else{
+				rs=dbm.getPrimaryKeys(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
+			}
 			while (rs.next()) {
 				String pkName = rs.getString("PK_NAME");
 				pk.setName(pkName);
@@ -218,13 +245,26 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		}
 		return pk;
 	}
+	
+	public PrimaryKey crawlPrimaryKey(String tableName){
+		return crawlPrimaryKey(tableName,null);
+	}
+	
+	public Map<String, ForeignKey> crawlForeignKey(String tableName){
+		return crawlForeignKey(tableName, null);
+	}
 
-	public Map<String,ForeignKey> crawlForeignKey(String tableName) {
-		Map<String,ForeignKey> foreignKeys = new HashMap<String,ForeignKey>();
+	public Map<String, ForeignKey> crawlForeignKey(String tableName,SchemaInfo schemaInfo) {
+		Map<String, ForeignKey> foreignKeys = new HashMap<String, ForeignKey>();
+		ResultSet rs;
 		try {
-			ResultSet rs = dbm.getImportedKeys(null, null, tableName);
+			if(schemaInfo==null){
+				rs = dbm.getImportedKeys(null, null, tableName);
+			}else{
+				rs = dbm.getImportedKeys(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
+			}
 			while (rs.next()) {
-				String fk_name=rs.getString("FK_NAME");
+				String fk_name = rs.getString("FK_NAME");
 				ForeignKey key;
 				if (!foreignKeys.containsKey(fk_name)) {
 					key = new ForeignKey();
@@ -233,10 +273,10 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 					key.setDeleteRule(ForeignKeyUpdateRule.valueOf(rs.getInt("DELETE_RULE")));
 					key.setDeferrability(ForeignKeyDeferrability.valueOf(rs.getInt("DEFERRABILITY")));
 					foreignKeys.put(fk_name, key);
-				}else{
-					key=foreignKeys.get(fk_name);
+				} else {
+					key = foreignKeys.get(fk_name);
 				}
-				ForeignKeyColumnReference fcr=packForeignKeyColumnReference(rs);
+				ForeignKeyColumnReference fcr = packForeignKeyColumnReference(rs);
 				key.getColumnReferences().add(fcr);
 			}
 		} catch (SQLException e) {
@@ -246,71 +286,71 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return foreignKeys;
 	}
 
-	protected ForeignKeyColumnReference packForeignKeyColumnReference(ResultSet rs) throws SQLException{
-		String pk_cat=rs.getString("PKTABLE_CAT");
-		String pk_schema=rs.getString("PKTABLE_SCHEM");
-		String pk_table=rs.getString("PKTABLE_NAME");
-		String pk_column=rs.getString("PKCOLUMN_NAME");
-		
-		String fk_cat=rs.getString("FKTABLE_CAT");
-		String fk_schema=rs.getString("FKTABLE_SCHEM");
-		String fk_table=rs.getString("FKTABLE_NAME");
-		String fk_column=rs.getString("PKCOLUMN_NAME");
-		
-		int keySeq=rs.getInt("KEY_SEQ");
-		
-		ForeignKeyColumnReference foreignKeyColumnReference=new ForeignKeyColumnReference();
+	protected ForeignKeyColumnReference packForeignKeyColumnReference(ResultSet rs) throws SQLException {
+		String pk_cat = rs.getString("PKTABLE_CAT");
+		String pk_schema = rs.getString("PKTABLE_SCHEM");
+		String pk_table = rs.getString("PKTABLE_NAME");
+		String pk_column = rs.getString("PKCOLUMN_NAME");
+
+		String fk_cat = rs.getString("FKTABLE_CAT");
+		String fk_schema = rs.getString("FKTABLE_SCHEM");
+		String fk_table = rs.getString("FKTABLE_NAME");
+		String fk_column = rs.getString("PKCOLUMN_NAME");
+
+		int keySeq = rs.getInt("KEY_SEQ");
+
+		ForeignKeyColumnReference foreignKeyColumnReference = new ForeignKeyColumnReference();
 		foreignKeyColumnReference.setKeySequence(keySeq);
 		foreignKeyColumnReference.setForeignColumn(new ForeignKeyColumnReference.ColumnReference(fk_cat, fk_schema, fk_table, fk_column));
 		foreignKeyColumnReference.setPrimaryColumn(new ForeignKeyColumnReference.ColumnReference(pk_cat, pk_schema, pk_table, pk_column));
-				
+
 		return foreignKeyColumnReference;
 	}
-	
-	public Schema getSchema(){
+
+	public Schema getSchema() {
 		ResultSet rs;
-		SchemaInfo schemaInfo=null;
-		SchemaInfoLevel level=SchemaInfoLevel.standard();
-		Schema schema=new Schema();
-		Map<String, Table> tables=new HashMap<String, Table>();
-		//TODO use other method to information
+		SchemaInfo schemaInfo = null;
+		SchemaInfoLevel level = SchemaInfoLevel.standard();
+		Schema schema = new Schema();
+		Map<String, Table> tables = new HashMap<String, Table>();
+		// TODO use other method to information
 		try {
-			schemaInfo=getSchemaInfo();
+			schemaInfo = getSchemaInfo();
 			schema.setSchemaInfo(schemaInfo);
-			Set<String> tableNames=getTableNames();
+			Set<String> tableNames = getTableNames();
 			for (String string : tableNames) {
-				Table table=getTable(string);
+				Table table = getTable(string);
 				tables.put(string, table);
 			}
 			schema.setTables(tables);
 		} catch (DataAccessException e) {
 			throw new DatabaseMetaGetMetaException("get schema information error!", e);
 		}
-		
+
 		return schema;
 	}
-	
-	public Schema getSchema(SchemaInfo schemaInfo){
+
+	public Schema getSchema(SchemaInfo schemaInfo) {
 		ResultSet rs;
-		SchemaInfoLevel level=SchemaInfoLevel.standard();
-		Schema schema=new Schema();
-		Map<String, Table> tables=new HashMap<String, Table>();
-		//TODO use other method to information
+		SchemaInfoLevel level = SchemaInfoLevel.standard();
+		Schema schema = new Schema();
+		Map<String, Table> tables = new HashMap<String, Table>();
+		// TODO use other method to information
 		try {
-			Set<String> tableNames=getTableNames(schemaInfo);
+			Set<String> tableNames = getTableNames(schemaInfo);
 			for (String string : tableNames) {
-				Table table=getTable(string);
+				Table table = getTable(string, level, schemaInfo);
 				tables.put(string, table);
 			}
 			schema.setTables(tables);
 		} catch (DataAccessException e) {
 			throw new DatabaseMetaGetMetaException("get schema information error!", e);
 		}
-		
+
 		return schema;
 	}
-	
-	protected SchemaInfo getSchemaInfo(){
+
+	protected SchemaInfo getSchemaInfo() {
 		ResultSet rs;
 		SchemaInfo schemaInfo = null;
 		try {
@@ -318,8 +358,8 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 
 			while (rs.next()) {
 				String catalog = rs.getString("TABLE_CAT");
-				String schema=rs.getString("TABLE_SCHEM");
-				schemaInfo=new SchemaInfo(catalog, schema);
+				String schema = rs.getString("TABLE_SCHEM");
+				schemaInfo = new SchemaInfo(catalog, schema);
 				break;
 			}
 		} catch (SQLException e) {
@@ -327,15 +367,13 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		}
 		return schemaInfo;
 	}
-	
-	
-	
-	public DatabaseInfo getDatabaseInfo(){
+
+	public DatabaseInfo getDatabaseInfo() {
 		try {
-			String productName=dbm.getDatabaseProductName();
-			String productVersion=dbm.getDatabaseProductVersion();
-			String userName=dbm.getUserName();
-			DatabaseInfo databaseInfo=new DatabaseInfo();
+			String productName = dbm.getDatabaseProductName();
+			String productVersion = dbm.getDatabaseProductVersion();
+			String userName = dbm.getUserName();
+			DatabaseInfo databaseInfo = new DatabaseInfo();
 			databaseInfo.setProductName(productName);
 			databaseInfo.setProductVersion(productVersion);
 			databaseInfo.setUserName(userName);
@@ -343,7 +381,6 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		} catch (SQLException e) {
 			throw new NonTransientDataAccessException(e.getMessage(), e);
 		}
-		
-		
+
 	}
 }

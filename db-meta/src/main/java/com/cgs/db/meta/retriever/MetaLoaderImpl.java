@@ -3,6 +3,7 @@ package com.cgs.db.meta.retriever;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -178,10 +179,13 @@ public class MetaLoaderImpl implements MetaLoader {
 			DatabaseInfo databaseInfo=metaCrawler.getDatabaseInfo();
 			database.setDatabaseInfo(databaseInfo);
 			
-//			Set<SchemaInfo> schemas=metaCrawler.getSchemaInfos();
-//			for (SchemaInfo schemaInfo : schemas) {
-//				
-//			}
+			Set<Schema> schemaSet=new HashSet<Schema>();
+			Set<SchemaInfo> schemas=metaCrawler.getSchemaInfos();
+			for (SchemaInfo schemaInfo : schemas) {
+				Schema schema=metaCrawler.getSchema(schemaInfo);
+				schemaSet.add(schema);
+			}
+			database.setSchemas(schemaSet);
 			return database;
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
