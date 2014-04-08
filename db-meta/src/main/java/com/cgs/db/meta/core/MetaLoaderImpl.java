@@ -78,25 +78,23 @@ public class MetaLoaderImpl implements MetaLoader {
 	}
 
 	public Table getTable(String tableName) {
-		Connection con = JDBCUtils.getConnection(dataSource);
-		MetaCrawler metaCrawler=null;
-		try{
-			metaCrawler=factory.newInstance(con);
-			return metaCrawler.getTable(tableName,SchemaInfoLevel.standard());
-		}catch(DataAccessException e){
-			logger.debug(e.getMessage(),e);
-			throw new DatabaseMetaGetMetaException("Get tables error!", e);
-		}finally{
-			JDBCUtils.closeConnection(con);
-		}
+		return getTable(tableName, SchemaInfoLevel.standard());
 	}
 	
-	public Table getTable(String tableName, SchemaInfoLevel schemaLevel) {
+	public Table getTable(String tableName,SchemaInfoLevel level) {
+		return getTable(tableName, level, null);
+	}
+	
+	public Table getTable(String tableName, SchemaInfo schemaInfo) {
+		return getTable(tableName, SchemaInfoLevel.standard(), schemaInfo);
+	}
+	
+	public Table getTable(String tableName, SchemaInfoLevel schemaLevel,SchemaInfo schemaInfo) {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
 			metaCrawler=factory.newInstance(con);
-			return metaCrawler.getTable(tableName, schemaLevel);
+			return metaCrawler.getTable(tableName, schemaLevel,schemaInfo);
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);
@@ -119,12 +117,26 @@ public class MetaLoaderImpl implements MetaLoader {
 		}
 	}
 
-	public Schema getSchema() {
+	public Schema getSchema(SchemaInfoLevel level) {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
 			metaCrawler=factory.newInstance(con);
-			return metaCrawler.getSchema(SchemaInfoLevel.standard());
+			return metaCrawler.getSchema(level);
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+	
+	public Schema getSchema(SchemaInfo schemaInfo) {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getSchema(schemaInfo,SchemaInfoLevel.standard());
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);
@@ -133,13 +145,14 @@ public class MetaLoaderImpl implements MetaLoader {
 		}
 	}
 
-	public Database getDatabase() {
+
+	public Database getDatabase(SchemaInfoLevel level) {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		Database database;
 		try{
 			metaCrawler=factory.newInstance(con);
-			database=metaCrawler.getDatabase(SchemaInfoLevel.standard());
+			database=metaCrawler.getDatabase(level);
 			return database;
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
@@ -149,5 +162,17 @@ public class MetaLoaderImpl implements MetaLoader {
 		}
 	}
 
+	public Schema getSchema() {
+		return getSchema(SchemaInfoLevel.standard());
+	}
+
+	public Database getDatabase() {
+		return getDatabase(SchemaInfoLevel.standard());
+	}
+
+	
+	
+
+	
 
 }

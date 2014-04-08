@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
+import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -42,4 +43,23 @@ public class SqlServerSqlMetaLoader extends AbstractSqlMetaCrawler{
 		}
 		return schemaInfos;
 	}
+	
+	public Set<String> getTableNames(SchemaInfo schemaInfo) {
+		Set<String> tables = new HashSet<String>();
+		ResultSet rs;
+		try {
+			rs = dbm.getTables(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), null, new String[] { "TABLE" });
+
+			while (rs.next()) {
+				String tableName = rs.getString("TABLE_NAME");
+				tables.add(tableName);
+			}
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+
+		return tables;
+	}
+	
+
 }

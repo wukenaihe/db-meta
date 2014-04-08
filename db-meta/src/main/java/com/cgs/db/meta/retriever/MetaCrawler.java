@@ -20,6 +20,8 @@ public interface MetaCrawler {
 	
 	Table getTable(String tableName,SchemaInfoLevel schemaInfoLevel);
 	
+	Table getTable(String tableName, SchemaInfoLevel level, SchemaInfo schemaInfo);
+	
 //	Map<String, Column> crawlColumnInfo(String tableName);
 //	
 //	PrimaryKey crawlPrimaryKey(String tableName);

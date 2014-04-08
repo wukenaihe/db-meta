@@ -25,6 +25,7 @@ public class DefaultMetaCrawlerFactory implements MetaCrawlerFactory{
 
 	public MetaCrawler newInstance(Connection con) {
 		String product=getProductName(con);
+		
 		DatabaseMetaData dbm=getDatabaseMetaData(con);
 		if (product.equals("MySQL")) {
 			return new MySqlSqlMetaLoader(dbm);

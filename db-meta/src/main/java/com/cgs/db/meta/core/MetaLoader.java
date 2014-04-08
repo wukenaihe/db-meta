@@ -34,6 +34,9 @@ public interface MetaLoader {
 	 * @return
 	 */
 	Table getTable(String tableName,SchemaInfoLevel schemaLevel);
+	
+	
+	Table getTable(String tableName,SchemaInfo schemaInfo);
 		
 	/**
 	 * Gets the database's schema information
@@ -49,11 +52,35 @@ public interface MetaLoader {
 	 */
 	Schema getSchema();
 	
+	Schema getSchema(SchemaInfo schemaInfo);
 	
 	/**
-	 * get current datasource's all the Schema
+	 *  get current datasource own Schema
 	 * 
-	 * @return
+	 * @param level
+	 * @return Schema
 	 */
+	Schema getSchema(SchemaInfoLevel level);
+	
+	
+	/**
+	 * get this database's all the Schema.
+	 * 
+	 * <p><b>In oracle it is a dangerous function.There are too many system tables</b></p>
+	 * 
+	 * @return Database
+	 */
+	@Deprecated
 	Database getDatabase();
+	
+	/**
+	 * get this database's all the Schema
+	 * 
+	 * <b>In oracle it is a dangerous function.There are too many system tables</b>
+	 * 
+	 * @param level
+	 * @return Database
+	 */
+	@Deprecated
+	Database getDatabase(SchemaInfoLevel level);
 }

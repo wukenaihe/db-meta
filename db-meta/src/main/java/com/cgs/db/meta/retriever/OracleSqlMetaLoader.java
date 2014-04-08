@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
+import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.ForeignKeyColumnReference;
+import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
@@ -36,43 +39,63 @@ public class OracleSqlMetaLoader extends AbstractSqlMetaCrawler {
 	public Set<String> getTableNames() {
 		Set<String> tables = new HashSet<String>();
 		try {
+			
 			String userName = dbm.getUserName();
 			ResultSet rs = dbm.getTables(null, userName, null, new String[] { "TABLE" });
 
 			while (rs.next()) {
 				String tableName = rs.getString("TABLE_NAME");
-				tables.add(tableName);
+				if (!isRubbishTable(tableName)) {
+					tables.add(tableName);
+				}
 			}
-			
+
 		} catch (SQLException e) {
 			logger.debug(e.getMessage());
 			throw new NonTransientDataAccessException(e.getMessage(), e);
 		}
 		return tables;
 	}
-
 	
-	public Table invokeCrawlTableInfo(String tableName,SchemaInfoLevel level) {
-		logger.trace("Get schema name by username");
-		String schemaName=null;
+	public Set<String> getTableNames(SchemaInfo schemaInfo) {
+		Set<String> tables = new HashSet<String>();
+		ResultSet rs;
 		try {
-			schemaName=dbm.getUserName();
+			rs = dbm.getTables(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), null, new String[] { "TABLE" });
+
+			while (rs.next()) {
+				String tableName = rs.getString("TABLE_NAME");
+				if (!isRubbishTable(tableName)) {
+					tables.add(tableName);
+				}
+			}
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+
+		return tables;
+	}
+
+	public Table invokeCrawlTableInfo(String tableName, SchemaInfoLevel level) {
+		logger.trace("Get schema name by username");
+		String schemaName = null;
+		try {
+			schemaName = dbm.getUserName();
 		} catch (SQLException e) {
 			logger.debug("can not get schema name, so see schema as null");
 		}
-		
-		Table table=crawlTableInfo(null, schemaName, tableName, level);
+
+		Table table = crawlTableInfo(null, schemaName, tableName, level);
 		return table;
 	}
 
-	
 	public Set<SchemaInfo> getSchemaInfos() {
-		Set<SchemaInfo> schemaInfos=new HashSet<SchemaInfo>();
+		Set<SchemaInfo> schemaInfos = new HashSet<SchemaInfo>();
 		try {
-			ResultSet rs=dbm.getSchemas();
-			while(rs.next()){
-				String schemaName=rs.getString("TABLE_SCHEM");
-				SchemaInfo schemaInfo=new SchemaInfo(null,schemaName);
+			ResultSet rs = dbm.getSchemas();
+			while (rs.next()) {
+				String schemaName = rs.getString("TABLE_SCHEM");
+				SchemaInfo schemaInfo = new SchemaInfo(null, schemaName);
 				schemaInfos.add(schemaInfo);
 			}
 		} catch (SQLException e) {
@@ -80,15 +103,24 @@ public class OracleSqlMetaLoader extends AbstractSqlMetaCrawler {
 		}
 		return schemaInfos;
 	}
-	
-	protected SchemaInfo getSchemaInfo(){
-		String schema=null;
+
+	protected SchemaInfo getSchemaInfo() {
+		String schema = null;
 		try {
 			schema = dbm.getUserName();
 		} catch (SQLException e) {
 			throw new NonTransientDataAccessException(e.getMessage(), e);
 		}
-		
+
 		return new SchemaInfo(null, schema);
 	}
+
+	private boolean isRubbishTable(String tableName) {
+		if (tableName == null || tableName.length() > 30) {
+			return true;
+		}
+		String rex = "[a-zA-Z_0-9$#]+";
+		return !tableName.matches(rex);
+	}
+
 }

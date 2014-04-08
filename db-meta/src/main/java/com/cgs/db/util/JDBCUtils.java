@@ -1,6 +1,7 @@
 package com.cgs.db.util;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
@@ -51,5 +52,27 @@ public class JDBCUtils {
 			throw new CannotGetJdbcConnectionException("Could not get JDBC Connection", e);
 		}
 		return con;
+	}
+	
+	
+	/**
+	 * Close the given JDBC ResultSet and ignore any thrown exception.
+	 * This is useful for typical finally blocks in manual JDBC code.
+	 * @param rs the JDBC Resultset to close (may be {@code null})
+	 */
+	public static void closeResultSet(ResultSet rs){
+		if (rs != null) {
+			try {
+				logger.debug("close ResultSet "+rs+" "+rs.hashCode());
+				rs.close();
+			}
+			catch (SQLException ex) {
+				logger.debug("Could not close JDBC ResultSet", ex);
+			}
+			catch (Throwable ex) {
+				// We don't trust the JDBC driver: It might throw RuntimeException or Error.
+				logger.debug("Unexpected exception on closing JDBC ResultSet", ex);
+			}
+		}
 	}
 }
