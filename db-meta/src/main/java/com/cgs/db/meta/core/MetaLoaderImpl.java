@@ -1,4 +1,4 @@
-package com.cgs.db.meta.retriever;
+package com.cgs.db.meta.core;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,7 +15,10 @@ import com.cgs.db.exception.CannotGetJdbcConnectionException;
 import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
-import com.cgs.db.meta.core.MetaLoader;
+import com.cgs.db.meta.retriever.MetaCrawler;
+import com.cgs.db.meta.retriever.MySqlSqlMetaLoader;
+import com.cgs.db.meta.retriever.OracleSqlMetaLoader;
+import com.cgs.db.meta.retriever.SqlServerSqlMetaLoader;
 import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.Schema;
@@ -141,6 +144,20 @@ public class MetaLoaderImpl implements MetaLoader {
 			JDBCUtils.closeConnection(con);
 		}
 	}
+	
+	public Table getTable(String tableName, SchemaInfoLevel schemaLevel) {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=getMetaCrawler(con);
+			return metaCrawler.getTable(tableName, schemaLevel);
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
 
 	public Set<SchemaInfo> getSchemaInfos() {
 		Connection con = JDBCUtils.getConnection(dataSource);
@@ -173,19 +190,10 @@ public class MetaLoaderImpl implements MetaLoader {
 	public Database getDatabase() {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
-		Database database=new Database();
+		Database database;
 		try{
 			metaCrawler=getMetaCrawler(con);
-			DatabaseInfo databaseInfo=metaCrawler.getDatabaseInfo();
-			database.setDatabaseInfo(databaseInfo);
-			
-			Set<Schema> schemaSet=new HashSet<Schema>();
-			Set<SchemaInfo> schemas=metaCrawler.getSchemaInfos();
-			for (SchemaInfo schemaInfo : schemas) {
-				Schema schema=metaCrawler.getSchema(schemaInfo);
-				schemaSet.add(schema);
-			}
-			database.setSchemas(schemaSet);
+			database=metaCrawler.getDatabase();
 			return database;
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);

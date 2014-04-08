@@ -31,6 +31,7 @@ public final class SchemaInfoLevel {
 		  SchemaInfoLevel min=new SchemaInfoLevel();
 		  min.setTag("MinLevel");
 		  min.setRetrieveTable(true);
+		  min.setRetrieveTableColumns(true);
 		  return min;
 	  }
 	  

@@ -18,12 +18,23 @@ public interface MetaLoader {
 	/**
 	 * get current datasource own schema's table.Default Level Table contaion
 	 *  columns、primaryKey、ForeignKey、index
+	 *  
 	 * 
 	 * @param tableName
 	 * @return Table
 	 */
 	Table getTable(String tableName);
 	
+	
+	/**
+	 * get current datasource own schema's table. 
+	 * 
+	 * @param tableName
+	 * @param schemaLevel 
+	 * @return
+	 */
+	Table getTable(String tableName,SchemaInfoLevel schemaLevel);
+		
 	/**
 	 * Gets the database's schema information
 	 * 
@@ -40,7 +51,7 @@ public interface MetaLoader {
 	
 	
 	/**
-	 * 
+	 * get current datasource's all the Schema
 	 * 
 	 * @return
 	 */

@@ -3,7 +3,9 @@ package com.cgs.db.meta.retriever;
 import java.util.Map;
 import java.util.Set;
 
+import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Column;
+import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.ForeignKey;
 import com.cgs.db.meta.schema.PrimaryKey;
@@ -16,11 +18,13 @@ public interface MetaCrawler {
 	
 	Table getTable(String tableName);
 	
-	Map<String, Column> crawlColumnInfo(String tableName);
+	Table getTable(String tableName,SchemaInfoLevel schemaInfoLevel);
 	
-	PrimaryKey crawlPrimaryKey(String tableName);
-	
-	Map<String,ForeignKey> crawlForeignKey(String tableName);
+//	Map<String, Column> crawlColumnInfo(String tableName);
+//	
+//	PrimaryKey crawlPrimaryKey(String tableName);
+//	
+//	Map<String,ForeignKey> crawlForeignKey(String tableName);
 	
 	Set<SchemaInfo> getSchemaInfos();
 	
@@ -29,4 +33,6 @@ public interface MetaCrawler {
 	Schema getSchema(SchemaInfo schemaInfo);
 	
 	DatabaseInfo getDatabaseInfo();
+	
+	Database getDatabase();
 }

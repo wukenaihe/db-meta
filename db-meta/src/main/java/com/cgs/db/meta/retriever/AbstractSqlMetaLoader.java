@@ -25,6 +25,7 @@ import com.cgs.db.exception.SchemaInfoLevelException;
 import com.cgs.db.meta.core.MetaLoader;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Column;
+import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.ForeignKey;
 import com.cgs.db.meta.schema.ForeignKeyColumnReference;
@@ -126,7 +127,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 	}
 	
 	public Table getTable(String tableName, SchemaInfoLevel level){
-		return getTable(tableName, level,null);
+		return getTable(tableName,level,null);
 	}
 
 	public Table getTable(String tableName, SchemaInfoLevel level, SchemaInfo schemaInfo) {
@@ -171,7 +172,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 	 * @param tableName
 	 * @return
 	 */
-	public Map<String, Column> crawlColumnInfo(String tableName,SchemaInfo schemaInfo) {
+	protected Map<String, Column> crawlColumnInfo(String tableName,SchemaInfo schemaInfo) {
 		Map<String, Column> columns = new HashMap<String, Column>();
 		ResultSet rs;
 		try {
@@ -190,7 +191,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return columns;
 	}
 	
-	public Map<String, Column> crawlColumnInfo(String tableName){
+	protected Map<String, Column> crawlColumnInfo(String tableName){
 		return crawlColumnInfo(tableName,null);
 	}
 	
@@ -213,9 +214,9 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return column;
 	}
 
-	public abstract Table invokeCrawlTableInfo(String tableName, SchemaInfoLevel level);
+	protected abstract Table invokeCrawlTableInfo(String tableName, SchemaInfoLevel level);
 
-	public PrimaryKey crawlPrimaryKey(String tableName,SchemaInfo schemaInfo) {
+	protected PrimaryKey crawlPrimaryKey(String tableName,SchemaInfo schemaInfo) {
 		List<String> columns = new ArrayList<String>();
 		TreeMap<Integer, String> columnMaps = new TreeMap<Integer, String>();
 		PrimaryKey pk = new PrimaryKey();
@@ -246,15 +247,15 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return pk;
 	}
 	
-	public PrimaryKey crawlPrimaryKey(String tableName){
+	protected PrimaryKey crawlPrimaryKey(String tableName){
 		return crawlPrimaryKey(tableName,null);
 	}
 	
-	public Map<String, ForeignKey> crawlForeignKey(String tableName){
+	protected Map<String, ForeignKey> crawlForeignKey(String tableName){
 		return crawlForeignKey(tableName, null);
 	}
 
-	public Map<String, ForeignKey> crawlForeignKey(String tableName,SchemaInfo schemaInfo) {
+	protected Map<String, ForeignKey> crawlForeignKey(String tableName,SchemaInfo schemaInfo) {
 		Map<String, ForeignKey> foreignKeys = new HashMap<String, ForeignKey>();
 		ResultSet rs;
 		try {
@@ -381,6 +382,20 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		} catch (SQLException e) {
 			throw new NonTransientDataAccessException(e.getMessage(), e);
 		}
-
+	}
+	
+	public Database getDatabase(){
+		Database database=new Database();
+		DatabaseInfo databaseInfo=getDatabaseInfo();
+		database.setDatabaseInfo(databaseInfo);
+		
+		Set<Schema> schemaSet=new HashSet<Schema>();
+		Set<SchemaInfo> schemas=getSchemaInfos();
+		for (SchemaInfo schemaInfo : schemas) {
+			Schema schema=getSchema(schemaInfo);
+			schemaSet.add(schema);
+		}
+		database.setSchemas(schemaSet);
+		return database;
 	}
 }

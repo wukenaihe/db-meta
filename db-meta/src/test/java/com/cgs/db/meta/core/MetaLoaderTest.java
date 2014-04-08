@@ -55,6 +55,17 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
+	public void getTableLevel(){
+		long startTime=System.currentTimeMillis();
+		String tableName="des_table";//Oracle:"PUMP",mySql:"person_info":sql server:"Dataset"
+		Table table=metaLoader.getTable(tableName,SchemaInfoLevel.min());
+		System.out.println(table);
+		
+		long endTime=System.currentTimeMillis();
+		System.out.println("耗时："+(endTime-startTime));
+	}
+	
+	@Test
 	@Ignore
 	public void getSchemaInfos(){
 		long startTime=System.currentTimeMillis();
@@ -73,6 +84,7 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
+	@Ignore
 	public void getDatabase(){
 		Database database=metaLoader.getDatabase();
 		System.out.println(database);
