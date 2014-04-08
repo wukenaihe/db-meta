@@ -38,9 +38,9 @@ import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableType;
 import com.cgs.db.util.Assert;
 
-public abstract class AbstractSqlMetaLoader implements MetaCrawler {
+public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 
-	private Logger logger = LoggerFactory.getLogger(AbstractSqlMetaLoader.class);
+	private Logger logger = LoggerFactory.getLogger(AbstractSqlMetaCrawler.class);
 
 	protected DatabaseMetaData dbm;
 
@@ -48,11 +48,11 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		this.dbm = dbm;
 	}
 
-	public AbstractSqlMetaLoader(DatabaseMetaData dbm) {
+	public AbstractSqlMetaCrawler(DatabaseMetaData dbm) {
 		this.dbm = dbm;
 	}
 
-	public AbstractSqlMetaLoader() {
+	public AbstractSqlMetaCrawler() {
 
 	}
 
@@ -308,10 +308,9 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return foreignKeyColumnReference;
 	}
 
-	public Schema getSchema() {
+	public Schema getSchema(SchemaInfoLevel level) {
 		ResultSet rs;
 		SchemaInfo schemaInfo = null;
-		SchemaInfoLevel level = SchemaInfoLevel.standard();
 		Schema schema = new Schema();
 		Map<String, Table> tables = new HashMap<String, Table>();
 		// TODO use other method to information
@@ -320,7 +319,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 			schema.setSchemaInfo(schemaInfo);
 			Set<String> tableNames = getTableNames();
 			for (String string : tableNames) {
-				Table table = getTable(string);
+				Table table = getTable(string,level);
 				tables.put(string, table);
 			}
 			schema.setTables(tables);
@@ -331,9 +330,8 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		return schema;
 	}
 
-	public Schema getSchema(SchemaInfo schemaInfo) {
+	public Schema getSchema(SchemaInfo schemaInfo,SchemaInfoLevel level) {
 		ResultSet rs;
-		SchemaInfoLevel level = SchemaInfoLevel.standard();
 		Schema schema = new Schema();
 		Map<String, Table> tables = new HashMap<String, Table>();
 		// TODO use other method to information
@@ -384,7 +382,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		}
 	}
 	
-	public Database getDatabase(){
+	public Database getDatabase(SchemaInfoLevel level){
 		Database database=new Database();
 		DatabaseInfo databaseInfo=getDatabaseInfo();
 		database.setDatabaseInfo(databaseInfo);
@@ -392,7 +390,7 @@ public abstract class AbstractSqlMetaLoader implements MetaCrawler {
 		Set<Schema> schemaSet=new HashSet<Schema>();
 		Set<SchemaInfo> schemas=getSchemaInfos();
 		for (SchemaInfo schemaInfo : schemas) {
-			Schema schema=getSchema(schemaInfo);
+			Schema schema=getSchema(schemaInfo,level);
 			schemaSet.add(schema);
 		}
 		database.setSchemas(schemaSet);

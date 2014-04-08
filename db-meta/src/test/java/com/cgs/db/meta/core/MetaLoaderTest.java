@@ -35,7 +35,7 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void getTableNames(){
 		Set<String> tableNames=metaLoader.getTableNames();
 		
@@ -43,7 +43,7 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void getTable(){
 		long startTime=System.currentTimeMillis();
 		String tableName="des_table";//Oracle:"PUMP",mySql:"person_info":sql server:"Dataset"
@@ -66,7 +66,7 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void getSchemaInfos(){
 		long startTime=System.currentTimeMillis();
 		
@@ -77,14 +77,14 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void getSchema(){
 		Schema schema=metaLoader.getSchema();
 		System.out.println(schema);
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void getDatabase(){
 		Database database=metaLoader.getDatabase();
 		System.out.println(database);

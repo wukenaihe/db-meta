@@ -16,7 +16,7 @@ import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
-public class OracleSqlMetaLoader extends AbstractSqlMetaLoader {
+public class OracleSqlMetaLoader extends AbstractSqlMetaCrawler {
 	private Logger logger = LoggerFactory.getLogger(OracleSqlMetaLoader.class);
 
 	public OracleSqlMetaLoader() {

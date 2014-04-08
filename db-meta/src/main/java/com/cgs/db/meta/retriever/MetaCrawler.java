@@ -16,7 +16,7 @@ import com.cgs.db.meta.schema.Table;
 public interface MetaCrawler {
 	Set<String> getTableNames();
 	
-	Table getTable(String tableName);
+//	Table getTable(String tableName);
 	
 	Table getTable(String tableName,SchemaInfoLevel schemaInfoLevel);
 	
@@ -28,11 +28,11 @@ public interface MetaCrawler {
 	
 	Set<SchemaInfo> getSchemaInfos();
 	
-	Schema getSchema();
+	Schema getSchema(SchemaInfoLevel level);
 	
-	Schema getSchema(SchemaInfo schemaInfo);
+	Schema getSchema(SchemaInfo schemaInfo,SchemaInfoLevel level);
 	
 	DatabaseInfo getDatabaseInfo();
 	
-	Database getDatabase();
+	Database getDatabase(SchemaInfoLevel level);
 }

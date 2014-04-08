@@ -39,12 +39,17 @@ import com.cgs.db.util.JDBCUtils;
 public class MetaLoaderImpl implements MetaLoader {
 	private static Logger logger = LoggerFactory.getLogger(MetaLoaderImpl.class);
 
-	public static final int MYSQL = 1;
-	public static final int SQL_SERVER = 2;
-	public static final int ORACLE = 3;
+//	public static final int MYSQL = 1;
+//	public static final int SQL_SERVER = 2;
+//	public static final int ORACLE = 3;
 
 	private DataSource dataSource;
 	
+	private MetaCrawlerFactory factory=new DefaultMetaCrawlerFactory();
+
+	public void setFactory(MetaCrawlerFactory factory) {
+		this.factory = factory;
+	}
 
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -58,70 +63,11 @@ public class MetaLoaderImpl implements MetaLoader {
 		this.dataSource = dataSource;
 	}
 
-
-	private DatabaseMetaData getDatabaseMetaData(Connection connection) {
-		DatabaseMetaData dbm;
-		try {
-			dbm = connection.getMetaData();
-		} catch (SQLException e) {
-			JDBCUtils.closeConnection(connection);
-			throw new NonTransientDataAccessException("Could not get DatabaseMeta");
-		}
-		return dbm;
-	}
-
-	private MetaCrawler getMetaCrawler(Connection conn) {
-		int type=-1;
-		DatabaseMetaData databaseMetaData=null;
-		try {
-			type = getProductName(conn);
-			databaseMetaData=getDatabaseMetaData(conn);
-		} catch (SQLException e) {
-			logger.debug(e.getMessage(),e);
-			throw new NonTransientDataAccessException("can not get database information", e);
-		}
-		MetaCrawler mc = null;
-		switch (type) {
-		case MYSQL:
-			mc=new MySqlSqlMetaLoader(databaseMetaData);
-			break;
-		case ORACLE:
-			mc = new OracleSqlMetaLoader(databaseMetaData);
-			break;
-		case SQL_SERVER:
-			mc=new SqlServerSqlMetaLoader(databaseMetaData);
-			break;
-		default:
-			break;
-		}
-		return mc;
-	}
-
-	private int getProductName(Connection conn) throws SQLException {
-		String product = null;
-		try {
-			DatabaseMetaData dbm = conn.getMetaData();
-			product = dbm.getDatabaseProductName();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		if (product.equals("MySQL")) {
-			return MYSQL;
-		} else if (product.equals("Oracle")) {
-			return ORACLE;
-		} else if (product.equals("Microsoft SQL Server")) {
-			return SQL_SERVER;
-		} else {
-			return 0;
-		}
-	}
-
 	public Set<String> getTableNames() {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
-			metaCrawler=getMetaCrawler(con);
+			metaCrawler=factory.newInstance(con);
 			return metaCrawler.getTableNames();
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
@@ -135,8 +81,8 @@ public class MetaLoaderImpl implements MetaLoader {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
-			metaCrawler=getMetaCrawler(con);
-			return metaCrawler.getTable(tableName);
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getTable(tableName,SchemaInfoLevel.standard());
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);
@@ -149,7 +95,7 @@ public class MetaLoaderImpl implements MetaLoader {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
-			metaCrawler=getMetaCrawler(con);
+			metaCrawler=factory.newInstance(con);
 			return metaCrawler.getTable(tableName, schemaLevel);
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
@@ -163,7 +109,7 @@ public class MetaLoaderImpl implements MetaLoader {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
-			metaCrawler=getMetaCrawler(con);
+			metaCrawler=factory.newInstance(con);
 			return metaCrawler.getSchemaInfos();
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
@@ -177,8 +123,8 @@ public class MetaLoaderImpl implements MetaLoader {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
-			metaCrawler=getMetaCrawler(con);
-			return metaCrawler.getSchema();
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getSchema(SchemaInfoLevel.standard());
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);
@@ -192,8 +138,8 @@ public class MetaLoaderImpl implements MetaLoader {
 		MetaCrawler metaCrawler=null;
 		Database database;
 		try{
-			metaCrawler=getMetaCrawler(con);
-			database=metaCrawler.getDatabase();
+			metaCrawler=factory.newInstance(con);
+			database=metaCrawler.getDatabase(SchemaInfoLevel.standard());
 			return database;
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
