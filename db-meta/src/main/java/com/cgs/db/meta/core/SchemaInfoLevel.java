@@ -19,12 +19,12 @@ public final class SchemaInfoLevel {
 	  private boolean retrieveForeignKeys;
 //	  private boolean retrieveIndices;
 	  private boolean retrieveTablePrivileges;
-	  private boolean retrieveTableColumnPrivileges;
+//	  private boolean retrieveTableColumnPrivileges;
 	  private boolean retrieveTriggerInformation;
-	  private boolean retrieveSynonymInformation;
+//	  private boolean retrieveSynonymInformation;
 	  private boolean retrieveTableColumns;
-	  private boolean retrieveAdditionalTableAttributes;
-	  private boolean retrieveAdditionalColumnAttributes;
+//	  private boolean retrieveAdditionalTableAttributes;
+//	  private boolean retrieveAdditionalColumnAttributes;
 	  private String tag;
 	  
 	  public static SchemaInfoLevel min(){
@@ -37,13 +37,30 @@ public final class SchemaInfoLevel {
 	  
 	  public static SchemaInfoLevel standard(){
 		  SchemaInfoLevel standard=new SchemaInfoLevel();
-		  standard.setTag("Standard");
+		  standard.setTag("Max");
 		  standard.setRetrieveTable(true);
 		  standard.setRetrieveTableColumns(true);
 		  standard.setRetrieveForeignKeys(true);
 		  standard.setRetrievePrimaryKey(true);
 		  standard.setRetrieveIndexInformation(true);
 		  return standard;
+	  }
+	  
+	  public static SchemaInfoLevel max(){
+		  
+		  
+		  SchemaInfoLevel max=new SchemaInfoLevel();
+		  max.setTag("Standard");
+		  max.setRetrieveTable(true);
+		  max.setRetrieveTableColumns(true);
+		  max.setRetrieveTableConstraintInformation(true);
+		  max.setRetrieveViewInformation(true);
+		  max.setRetrieveForeignKeys(true);
+		  max.setRetrievePrimaryKey(true);
+		  max.setRetrieveTablePrivileges(true);
+		  max.setRetrieveTriggerInformation(true);
+		  max.setRetrieveIndexInformation(true);
+		  return max;
 	  }
 
 	public boolean isRetrieveJdbcDriverInfo() {
@@ -111,13 +128,6 @@ public final class SchemaInfoLevel {
 		this.retrieveTablePrivileges = retrieveTablePrivileges;
 	}
 
-	public boolean isRetrieveTableColumnPrivileges() {
-		return retrieveTableColumnPrivileges;
-	}
-
-	public void setRetrieveTableColumnPrivileges(boolean retrieveTableColumnPrivileges) {
-		this.retrieveTableColumnPrivileges = retrieveTableColumnPrivileges;
-	}
 
 	public boolean isRetrieveTriggerInformation() {
 		return retrieveTriggerInformation;
@@ -127,36 +137,12 @@ public final class SchemaInfoLevel {
 		this.retrieveTriggerInformation = retrieveTriggerInformation;
 	}
 
-	public boolean isRetrieveSynonymInformation() {
-		return retrieveSynonymInformation;
-	}
-
-	public void setRetrieveSynonymInformation(boolean retrieveSynonymInformation) {
-		this.retrieveSynonymInformation = retrieveSynonymInformation;
-	}
-
 	public boolean isRetrieveTableColumns() {
 		return retrieveTableColumns;
 	}
 
 	public void setRetrieveTableColumns(boolean retrieveTableColumns) {
 		this.retrieveTableColumns = retrieveTableColumns;
-	}
-
-	public boolean isRetrieveAdditionalTableAttributes() {
-		return retrieveAdditionalTableAttributes;
-	}
-
-	public void setRetrieveAdditionalTableAttributes(boolean retrieveAdditionalTableAttributes) {
-		this.retrieveAdditionalTableAttributes = retrieveAdditionalTableAttributes;
-	}
-
-	public boolean isRetrieveAdditionalColumnAttributes() {
-		return retrieveAdditionalColumnAttributes;
-	}
-
-	public void setRetrieveAdditionalColumnAttributes(boolean retrieveAdditionalColumnAttributes) {
-		this.retrieveAdditionalColumnAttributes = retrieveAdditionalColumnAttributes;
 	}
 
 	public String getTag() {

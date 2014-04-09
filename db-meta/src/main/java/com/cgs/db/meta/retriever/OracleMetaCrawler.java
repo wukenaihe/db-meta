@@ -19,14 +19,14 @@ import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
-public class OracleSqlMetaLoader extends AbstractSqlMetaCrawler {
-	private Logger logger = LoggerFactory.getLogger(OracleSqlMetaLoader.class);
+public class OracleMetaCrawler extends AbstractMetaCrawler {
+	private Logger logger = LoggerFactory.getLogger(OracleMetaCrawler.class);
 
-	public OracleSqlMetaLoader() {
+	public OracleMetaCrawler() {
 
 	}
 
-	public OracleSqlMetaLoader(DatabaseMetaData databaseMetaData) {
+	public OracleMetaCrawler(DatabaseMetaData databaseMetaData) {
 		super(databaseMetaData);
 	}
 

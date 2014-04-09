@@ -47,6 +47,7 @@ public class JDBCUtils {
 		Connection con;
 		try {
 			con = dataSource.getConnection();
+			con.isReadOnly();//Is readOnly
 			logger.debug("Get the connection "+con+" "+con.hashCode());
 		} catch (SQLException e) {
 			throw new CannotGetJdbcConnectionException("Could not get JDBC Connection", e);

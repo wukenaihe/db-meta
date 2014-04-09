@@ -15,6 +15,9 @@ import java.util.Map;
  *
  */
 public class Schema implements Serializable{
+
+	private static final long serialVersionUID = 7247506286961678313L;
+
 	private SchemaInfo schemaInfo;
 	
 	private Map<String, Table> tables;

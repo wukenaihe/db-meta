@@ -11,13 +11,13 @@ import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
-public class MySqlSqlMetaLoader extends AbstractSqlMetaCrawler{
+public class MySqlMetaCrawler extends AbstractMetaCrawler{
 	
-	public MySqlSqlMetaLoader(){
+	public MySqlMetaCrawler(){
 		
 	}
 	
-	public MySqlSqlMetaLoader(DatabaseMetaData databaseMetaData){
+	public MySqlMetaCrawler(DatabaseMetaData databaseMetaData){
 		super(databaseMetaData);
 	}
 

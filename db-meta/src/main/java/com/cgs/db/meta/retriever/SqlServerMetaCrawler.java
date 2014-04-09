@@ -12,14 +12,14 @@ import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
-public class SqlServerSqlMetaLoader extends AbstractSqlMetaCrawler{
+public class SqlServerMetaCrawler extends AbstractMetaCrawler{
 
 	
-	public SqlServerSqlMetaLoader(){
+	public SqlServerMetaCrawler(){
 		
 	}
 	
-	public SqlServerSqlMetaLoader(DatabaseMetaData dbm){
+	public SqlServerMetaCrawler(DatabaseMetaData dbm){
 		super(dbm);
 	}
 

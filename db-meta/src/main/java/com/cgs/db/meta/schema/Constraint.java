@@ -1,12 +1,16 @@
 package com.cgs.db.meta.schema;
 
+import java.io.Serializable;
+
 /**
  * Represents a table constraint.
  * 
  * @author xumh
  *
  */
-public class Constraint {
+public class Constraint implements Serializable{
+
+	private static final long serialVersionUID = 6464975225064851090L;
 	
 	private TableConstraintType tableConstraintType;
 	private boolean deferrable;

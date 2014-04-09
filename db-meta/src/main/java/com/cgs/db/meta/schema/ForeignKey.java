@@ -1,9 +1,13 @@
 package com.cgs.db.meta.schema;
 
+import java.io.Serializable;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class ForeignKey {
+public class ForeignKey implements Serializable{
+
+	private static final long serialVersionUID = 3273554634724597699L;
+
 	private String name;
 
 	private SortedSet<ForeignKeyColumnReference> columnReferences = new TreeSet<ForeignKeyColumnReference>();

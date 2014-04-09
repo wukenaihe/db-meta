@@ -1,9 +1,13 @@
 package com.cgs.db.meta.schema;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class Table {
+public class Table implements Serializable{
+
+	private static final long serialVersionUID = -1493291006455025499L;
+	
 	private TableType tableType = TableType.unknown; // Default value
 	private String name;
 	private String comment;
@@ -14,6 +18,8 @@ public class Table {
 	private List<Index> indexs;
 	private List<Constraint> constraints;
 	private List<Trigger> triggers;
+	
+	private Privilege privilege;
 	
 	public List<Constraint> getConstraints() {
 		return constraints;
@@ -71,10 +77,19 @@ public class Table {
 		this.triggers = triggers;
 	}
 	
+	public Privilege getPrivilege() {
+		return privilege;
+	}
+	public void setPrivilege(Privilege privilege) {
+		this.privilege = privilege;
+	}
+	@Override
 	public String toString() {
 		return "Table [tableType=" + tableType + ", name=" + name + ", comment=" + comment + ", columns=" + columns + ", primaryKey=" + primaryKey
-				+ ", foreignkeys=" + foreignkeys + ", indexs=" + indexs + ", constraints=" + constraints + ", triggers=" + triggers + "]";
+				+ ", foreignkeys=" + foreignkeys + ", indexs=" + indexs + ", constraints=" + constraints + ", triggers=" + triggers + ", privilege="
+				+ privilege + "]";
 	}
 
+	
 	
 }

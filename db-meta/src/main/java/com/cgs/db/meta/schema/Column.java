@@ -1,8 +1,10 @@
 package com.cgs.db.meta.schema;
 
-import java.awt.List;
+import java.io.Serializable;
 
-public class Column {
+public class Column implements Serializable{
+	private static final long serialVersionUID = 7510687871404901852L;
+	
 	private String name;
 	private String comment;
 	private boolean unique;

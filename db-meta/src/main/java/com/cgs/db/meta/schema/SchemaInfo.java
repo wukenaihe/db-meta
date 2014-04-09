@@ -11,6 +11,9 @@ import com.cgs.db.util.Utility;
  * 
  */
 public class SchemaInfo implements Serializable {
+
+	private static final long serialVersionUID = 6989202966373640091L;
+	
 	private String catalogName;
 	private String schemaName;
 	private transient String fullName;

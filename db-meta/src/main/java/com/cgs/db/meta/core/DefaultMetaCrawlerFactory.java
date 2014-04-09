@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.retriever.MetaCrawler;
-import com.cgs.db.meta.retriever.MySqlSqlMetaLoader;
-import com.cgs.db.meta.retriever.OracleSqlMetaLoader;
-import com.cgs.db.meta.retriever.SqlServerSqlMetaLoader;
+import com.cgs.db.meta.retriever.MySqlMetaCrawler;
+import com.cgs.db.meta.retriever.OracleMetaCrawler;
+import com.cgs.db.meta.retriever.SqlServerMetaCrawler;
 import com.cgs.db.util.JDBCUtils;
 
 /**
@@ -28,11 +28,11 @@ public class DefaultMetaCrawlerFactory implements MetaCrawlerFactory{
 		
 		DatabaseMetaData dbm=getDatabaseMetaData(con);
 		if (product.equals("MySQL")) {
-			return new MySqlSqlMetaLoader(dbm);
+			return new MySqlMetaCrawler(dbm);
 		} else if (product.equals("Oracle")) {
-			return new OracleSqlMetaLoader(dbm);
+			return new OracleMetaCrawler(dbm);
 		} else if (product.equals("Microsoft SQL Server")) {
-			return new SqlServerSqlMetaLoader(dbm);
+			return new SqlServerMetaCrawler(dbm);
 		} else {
 			return null;
 		}

@@ -1,6 +1,10 @@
 package com.cgs.db.meta.schema;
 
-public class ForeignKeyColumnReference implements Comparable<ForeignKeyColumnReference> {
+import java.io.Serializable;
+
+public class ForeignKeyColumnReference implements Comparable<ForeignKeyColumnReference>,Serializable {
+
+	private static final long serialVersionUID = 7085822899635585614L;
 	
 	public static class ColumnReference {
 		private String catalog;

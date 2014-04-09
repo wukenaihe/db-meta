@@ -16,6 +16,7 @@ import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
+import com.cgs.db.util.PrintUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:config.xml")
@@ -46,23 +47,20 @@ public class MetaLoaderTest {
 	@Test
 	@Ignore
 	public void getTable() {
-		long startTime = System.currentTimeMillis();
-		String tableName = "WRI$_ADV_EXECUTIONS";// Oracle:"PUMP",mySql:"person_info":sql
+		String tableName = "PUMP";// Oracle:"PUMP",mySql:"person_info":sql
 													// server:"Dataset"
 		Table table = metaLoader.getTable(tableName);
-		System.out.println(table);
-
-		long endTime = System.currentTimeMillis();
-		System.out.println("耗时：" + (endTime - startTime));
+		String result=PrintUtils.getTableInfo(table);
+		System.out.println(result);
 	}
 
 	@Test
-	@Ignore
+//	@Ignore
 	public void getTableInfo() {
 		long startTime = System.currentTimeMillis();
-		String tableName = "WRI$_ADV_EXECUTIONS";// Oracle:"PUMP",mySql:"person_info":sql
+		String tableName = "TEST";// Oracle:"PUMP",mySql:"person_info":sql
 													// server:"Dataset"
-		Table table = metaLoader.getTable(tableName, new SchemaInfo());
+		Table table = metaLoader.getTable(tableName,SchemaInfoLevel.max());
 		System.out.println(table);
 
 		long endTime = System.currentTimeMillis();
@@ -94,7 +92,7 @@ public class MetaLoaderTest {
 	}
 
 	@Test
-//	@Ignore
+	@Ignore
 	public void getSchema() {
 		Schema schema = metaLoader.getSchema();
 		System.out.println(schema);

@@ -33,6 +33,7 @@ import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.ForeignKeyDeferrability;
 import com.cgs.db.meta.schema.ForeignKeyUpdateRule;
 import com.cgs.db.meta.schema.PrimaryKey;
+import com.cgs.db.meta.schema.Privilege;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -40,9 +41,9 @@ import com.cgs.db.meta.schema.TableType;
 import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
 
-public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
+public abstract class AbstractMetaCrawler implements MetaCrawler {
 
-	private Logger logger = LoggerFactory.getLogger(AbstractSqlMetaCrawler.class);
+	private Logger logger = LoggerFactory.getLogger(AbstractMetaCrawler.class);
 
 	protected DatabaseMetaData dbm;
 
@@ -50,11 +51,11 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 		this.dbm = dbm;
 	}
 
-	public AbstractSqlMetaCrawler(DatabaseMetaData dbm) {
+	public AbstractMetaCrawler(DatabaseMetaData dbm) {
 		this.dbm = dbm;
 	}
 
-	public AbstractSqlMetaCrawler() {
+	public AbstractMetaCrawler() {
 
 	}
 
@@ -127,9 +128,9 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 	public Table getTable(String tableName) {
 		return getTable(tableName, SchemaInfoLevel.standard());
 	}
-	
-	public Table getTable(String tableName, SchemaInfoLevel level){
-		return getTable(tableName,level,null);
+
+	public Table getTable(String tableName, SchemaInfoLevel level) {
+		return getTable(tableName, level, null);
 	}
 
 	public Table getTable(String tableName, SchemaInfoLevel level, SchemaInfo schemaInfo) {
@@ -149,20 +150,26 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 
 		// crawl column information
 		if (level.isRetrieveTableColumns()) {
-			Map<String, Column> columns = crawlColumnInfo(tableName,schemaInfo);
+			Map<String, Column> columns = crawlColumnInfo(tableName, schemaInfo);
 			table.setColumns(columns);
 		}
 
 		// crawl primary key
 		if (level.isRetrievePrimaryKey()) {
-			PrimaryKey pk = crawlPrimaryKey(tableName,schemaInfo);
+			PrimaryKey pk = crawlPrimaryKey(tableName, schemaInfo);
 			table.setPrimaryKey(pk);
 		}
 
 		// crawl
 		if (level.isRetrieveForeignKeys()) {
-			Map<String, ForeignKey> foreignKeys = crawlForeignKey(tableName,schemaInfo);
+			Map<String, ForeignKey> foreignKeys = crawlForeignKey(tableName, schemaInfo);
 			table.setForeignkeys(foreignKeys);
+		}
+
+		// privilege
+		if (level.isRetrieveTablePrivileges()) {
+			Privilege p=crawlPrivilge(tableName, schemaInfo);
+			table.setPrivilege(p);
 		}
 
 		return table;
@@ -174,14 +181,14 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 	 * @param tableName
 	 * @return
 	 */
-	protected Map<String, Column> crawlColumnInfo(String tableName,SchemaInfo schemaInfo) {
+	protected Map<String, Column> crawlColumnInfo(String tableName, SchemaInfo schemaInfo) {
 		Map<String, Column> columns = new HashMap<String, Column>();
 		ResultSet rs = null;
 		try {
-			if(schemaInfo==null){
+			if (schemaInfo == null) {
 				rs = dbm.getColumns(null, null, tableName, null);
-			}else{
-				rs=dbm.getColumns(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName, null);
+			} else {
+				rs = dbm.getColumns(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName, null);
 			}
 			while (rs.next()) {
 				Column column = packColumn(rs);
@@ -189,17 +196,15 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			}
 		} catch (SQLException e) {
 			throw new DatabaseMetaGetMetaException("Table " + tableName + " get column information error!", e);
-		}finally{
+		} finally {
 			JDBCUtils.closeResultSet(rs);
 		}
 		return columns;
 	}
-	
-	protected Map<String, Column> crawlColumnInfo(String tableName){
-		return crawlColumnInfo(tableName,null);
+
+	protected Map<String, Column> crawlColumnInfo(String tableName) {
+		return crawlColumnInfo(tableName, null);
 	}
-	
-	
 
 	protected Column packColumn(ResultSet rs) throws SQLException {
 		String name = rs.getString("COLUMN_NAME");
@@ -220,16 +225,16 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 
 	protected abstract Table invokeCrawlTableInfo(String tableName, SchemaInfoLevel level);
 
-	protected PrimaryKey crawlPrimaryKey(String tableName,SchemaInfo schemaInfo) {
+	protected PrimaryKey crawlPrimaryKey(String tableName, SchemaInfo schemaInfo) {
 		List<String> columns = new ArrayList<String>();
 		TreeMap<Integer, String> columnMaps = new TreeMap<Integer, String>();
 		PrimaryKey pk = new PrimaryKey();
 		ResultSet rs = null;
 		try {
-			if(schemaInfo==null){
+			if (schemaInfo == null) {
 				rs = dbm.getPrimaryKeys(null, null, tableName);
-			}else{
-				rs=dbm.getPrimaryKeys(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
+			} else {
+				rs = dbm.getPrimaryKeys(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
 			}
 			while (rs.next()) {
 				String pkName = rs.getString("PK_NAME");
@@ -247,27 +252,27 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			pk.setColumns(columns);
 		} catch (SQLException e) {
 			throw new DatabaseMetaGetMetaException("Table " + tableName + " get primary key information error!", e);
-		}finally{
+		} finally {
 			JDBCUtils.closeResultSet(rs);
 		}
 		return pk;
 	}
-	
-	protected PrimaryKey crawlPrimaryKey(String tableName){
-		return crawlPrimaryKey(tableName,null);
+
+	protected PrimaryKey crawlPrimaryKey(String tableName) {
+		return crawlPrimaryKey(tableName, null);
 	}
-	
-	protected Map<String, ForeignKey> crawlForeignKey(String tableName){
+
+	protected Map<String, ForeignKey> crawlForeignKey(String tableName) {
 		return crawlForeignKey(tableName, null);
 	}
 
-	protected Map<String, ForeignKey> crawlForeignKey(String tableName,SchemaInfo schemaInfo) {
+	protected Map<String, ForeignKey> crawlForeignKey(String tableName, SchemaInfo schemaInfo) {
 		Map<String, ForeignKey> foreignKeys = new HashMap<String, ForeignKey>();
 		ResultSet rs = null;
 		try {
-			if(schemaInfo==null){
+			if (schemaInfo == null) {
 				rs = dbm.getImportedKeys(null, null, tableName);
-			}else{
+			} else {
 				rs = dbm.getImportedKeys(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
 			}
 			while (rs.next()) {
@@ -288,11 +293,43 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			}
 		} catch (SQLException e) {
 			throw new DatabaseMetaGetMetaException("Table " + tableName + " get foreign key information error!", e);
-		}finally{
+		} finally {
 			JDBCUtils.closeResultSet(rs);
 		}
 
 		return foreignKeys;
+	}
+
+	protected Privilege crawlPrivilge(String tableName, SchemaInfo schemaInfo) {
+		ResultSet rs = null;
+		Privilege p=null;
+		try {
+			if (schemaInfo == null) {
+				rs = dbm.getTablePrivileges(null, null, tableName);
+			} else {
+				rs = dbm.getTablePrivileges(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
+			}
+			
+			while(rs.next()){
+				String grantor=rs.getString("GRANTOR");
+				String grantee=rs.getString("GRANTEE");
+				String privilege=rs.getString("PRIVILEGE");
+				String is_Grantable=rs.getString("IS_GRANTABLE");
+				boolean isGrantable;
+				if(is_Grantable==null||is_Grantable.equals("NO")){
+					isGrantable=false;
+				}else{
+					isGrantable=true;
+				}
+				p=new Privilege(grantor, grantee, privilege, isGrantable);
+			}
+		} catch (SQLException e) {
+			throw new DatabaseMetaGetMetaException("Table " + tableName + " get Privilege information error!", e);
+		}finally{
+			JDBCUtils.closeResultSet(rs);
+		}
+		return p;
+
 	}
 
 	protected ForeignKeyColumnReference packForeignKeyColumnReference(ResultSet rs) throws SQLException {
@@ -327,7 +364,7 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			schema.setSchemaInfo(schemaInfo);
 			Set<String> tableNames = getTableNames();
 			for (String string : tableNames) {
-				Table table = getTable(string,level);
+				Table table = getTable(string, level);
 				tables.put(string, table);
 			}
 			schema.setTables(tables);
@@ -338,7 +375,7 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 		return schema;
 	}
 
-	public Schema getSchema(SchemaInfo schemaInfo,SchemaInfoLevel level) {
+	public Schema getSchema(SchemaInfo schemaInfo, SchemaInfoLevel level) {
 		ResultSet rs = null;
 		Schema schema = new Schema();
 		Map<String, Table> tables = new HashMap<String, Table>();
@@ -352,7 +389,7 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			schema.setTables(tables);
 		} catch (DataAccessException e) {
 			throw new DatabaseMetaGetMetaException("get schema information error!", e);
-		}finally{
+		} finally {
 			JDBCUtils.closeResultSet(rs);
 		}
 
@@ -373,7 +410,7 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			}
 		} catch (SQLException e) {
 			throw new NonTransientDataAccessException(e.getMessage(), e);
-		}finally{
+		} finally {
 			JDBCUtils.closeResultSet(rs);
 		}
 		return schemaInfo;
@@ -393,20 +430,20 @@ public abstract class AbstractSqlMetaCrawler implements MetaCrawler {
 			throw new NonTransientDataAccessException(e.getMessage(), e);
 		}
 	}
-	
-	public Database getDatabase(SchemaInfoLevel level){
-		Database database=new Database();
-		DatabaseInfo databaseInfo=getDatabaseInfo();
+
+	public Database getDatabase(SchemaInfoLevel level) {
+		Database database = new Database();
+		DatabaseInfo databaseInfo = getDatabaseInfo();
 		database.setDatabaseInfo(databaseInfo);
-		
-		Set<Schema> schemaSet=new HashSet<Schema>();
-		Set<SchemaInfo> schemas=getSchemaInfos();
+
+		Set<Schema> schemaSet = new HashSet<Schema>();
+		Set<SchemaInfo> schemas = getSchemaInfos();
 		for (SchemaInfo schemaInfo : schemas) {
-			Schema schema=getSchema(schemaInfo,level);
+			Schema schema = getSchema(schemaInfo, level);
 			schemaSet.add(schema);
 		}
 		database.setSchemas(schemaSet);
 		return database;
 	}
-	
+
 }

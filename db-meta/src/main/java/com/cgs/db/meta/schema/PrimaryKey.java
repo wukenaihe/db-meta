@@ -1,8 +1,12 @@
 package com.cgs.db.meta.schema;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PrimaryKey {
+public class PrimaryKey implements Serializable{
+
+	private static final long serialVersionUID = 6913288546311329557L;
+	
 	private String name;
 	private List<String> columns;
 	public String getName() {

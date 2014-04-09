@@ -1,13 +1,19 @@
 package com.cgs.db.meta.schema;
 
-public class Privilege {
+import java.io.Serializable;
+
+public class Privilege implements Serializable{
+
+	private static final long serialVersionUID = 6517818738846606160L;
 	private String grantor;
     private String grantee;
+    private String privilege;
     private boolean isGrantable;
     
-    public Privilege(String grantor,String grantee,boolean isGrantable){
+    public Privilege(String grantor,String grantee,String privilege,boolean isGrantable){
     	this.grantor=grantor;
     	this.grantee=grantee;
+    	this.privilege=privilege;
     	this.isGrantable=isGrantable;
     }
 
@@ -35,17 +41,26 @@ public class Privilege {
 		this.isGrantable = isGrantable;
 	}
 
-	@Override
+	public String getPrivilege() {
+		return privilege;
+	}
+
+	public void setPrivilege(String privilege) {
+		this.privilege = privilege;
+	}
+
+	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((grantee == null) ? 0 : grantee.hashCode());
 		result = prime * result + ((grantor == null) ? 0 : grantor.hashCode());
 		result = prime * result + (isGrantable ? 1231 : 1237);
+		result = prime * result + ((privilege == null) ? 0 : privilege.hashCode());
 		return result;
 	}
 
-	@Override
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -66,8 +81,18 @@ public class Privilege {
 			return false;
 		if (isGrantable != other.isGrantable)
 			return false;
+		if (privilege == null) {
+			if (other.privilege != null)
+				return false;
+		} else if (!privilege.equals(other.privilege))
+			return false;
 		return true;
 	}
-    
+
+	
+	public String toString() {
+		return "Privilege [grantor=" + grantor + ", grantee=" + grantee + ", privilege=" + privilege + ", isGrantable=" + isGrantable + "]";
+	}
+
     
 }

@@ -1,8 +1,12 @@
 package com.cgs.db.meta.schema;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Index {
+public class Index implements Serializable{
+
+	private static final long serialVersionUID = -4194272041788122320L;
+	
 	private boolean isUnique;
 	private IndexType indexType;
 	private int pages;
