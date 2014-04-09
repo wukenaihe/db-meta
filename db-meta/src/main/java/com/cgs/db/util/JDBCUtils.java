@@ -1,6 +1,7 @@
 package com.cgs.db.util;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -73,6 +74,22 @@ public class JDBCUtils {
 			catch (Throwable ex) {
 				// We don't trust the JDBC driver: It might throw RuntimeException or Error.
 				logger.debug("Unexpected exception on closing JDBC ResultSet", ex);
+			}
+		}
+	}
+	
+	public static void closePreparedStatement(PreparedStatement rs){
+		if (rs != null) {
+			try {
+				logger.debug("close PreparedStatement "+rs+" "+rs.hashCode());
+				rs.close();
+			}
+			catch (SQLException ex) {
+				logger.debug("Could not close JDBC PreparedStatement", ex);
+			}
+			catch (Throwable ex) {
+				// We don't trust the JDBC driver: It might throw RuntimeException or Error.
+				logger.debug("Unexpected exception on closing JDBC PreparedStatement", ex);
 			}
 		}
 	}

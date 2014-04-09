@@ -4,11 +4,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
+import com.cgs.db.meta.schema.Constraint;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 
@@ -59,6 +61,12 @@ public class SqlServerMetaCrawler extends AbstractMetaCrawler{
 		}
 
 		return tables;
+	}
+
+	@Override
+	protected Map<String, Constraint> crawlConstraint(String tableName, SchemaInfo schemaInfo) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

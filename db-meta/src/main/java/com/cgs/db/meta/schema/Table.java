@@ -15,16 +15,16 @@ public class Table implements Serializable{
 	private Map<String, Column> columns;
 	private PrimaryKey primaryKey;
 	private Map<String,ForeignKey> foreignkeys;
-	private List<Index> indexs;
-	private List<Constraint> constraints;
+	private Map<String,Index> indexs;
+	private Map<String,Constraint> constraints;
 	private List<Trigger> triggers;
 	
 	private Privilege privilege;
 	
-	public List<Constraint> getConstraints() {
+	public Map<String, Constraint> getConstraints() {
 		return constraints;
 	}
-	public void setConstraints(List<Constraint> constraints) {
+	public void setConstraints(Map<String, Constraint> constraints) {
 		this.constraints = constraints;
 	}
 	public TableType getTableType() {
@@ -64,10 +64,11 @@ public class Table implements Serializable{
 	public void setForeignkeys(Map<String, ForeignKey> foreignkeys) {
 		this.foreignkeys = foreignkeys;
 	}
-	public List<Index> getIndexs() {
+
+	public Map<String, Index> getIndexs() {
 		return indexs;
 	}
-	public void setIndexs(List<Index> indexs) {
+	public void setIndexs(Map<String, Index> indexs) {
 		this.indexs = indexs;
 	}
 	public List<Trigger> getTriggers() {

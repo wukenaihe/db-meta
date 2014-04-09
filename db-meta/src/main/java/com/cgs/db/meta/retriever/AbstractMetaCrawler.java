@@ -26,12 +26,15 @@ import com.cgs.db.exception.SchemaInfoLevelException;
 import com.cgs.db.meta.core.MetaLoader;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Column;
+import com.cgs.db.meta.schema.Constraint;
 import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.ForeignKey;
 import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.ForeignKeyDeferrability;
 import com.cgs.db.meta.schema.ForeignKeyUpdateRule;
+import com.cgs.db.meta.schema.Index;
+import com.cgs.db.meta.schema.IndexType;
 import com.cgs.db.meta.schema.PrimaryKey;
 import com.cgs.db.meta.schema.Privilege;
 import com.cgs.db.meta.schema.Schema;
@@ -160,16 +163,28 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 			table.setPrimaryKey(pk);
 		}
 
-		// crawl
+		// crawl foreign
 		if (level.isRetrieveForeignKeys()) {
 			Map<String, ForeignKey> foreignKeys = crawlForeignKey(tableName, schemaInfo);
 			table.setForeignkeys(foreignKeys);
 		}
 
-		// privilege
+		// crawl privilege
 		if (level.isRetrieveTablePrivileges()) {
-			Privilege p=crawlPrivilge(tableName, schemaInfo);
+			Privilege p = crawlPrivilge(tableName, schemaInfo);
 			table.setPrivilege(p);
+		}
+		
+		//crawl index
+		if(level.isRetrieveIndexInformation()){
+			Map<String, Index> indexs=crawlIndex(tableName, schemaInfo);
+			table.setIndexs(indexs);
+		}
+		
+		//crawl constraint
+		if(level.isRetrieveTableConstraintInformation()){
+			Map<String, Constraint> constraints=crawlConstraint(tableName, schemaInfo);
+			table.setConstraints(constraints);
 		}
 
 		return table;
@@ -302,35 +317,80 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 
 	protected Privilege crawlPrivilge(String tableName, SchemaInfo schemaInfo) {
 		ResultSet rs = null;
-		Privilege p=null;
+		Privilege p = null;
 		try {
 			if (schemaInfo == null) {
 				rs = dbm.getTablePrivileges(null, null, tableName);
 			} else {
 				rs = dbm.getTablePrivileges(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName);
 			}
-			
-			while(rs.next()){
-				String grantor=rs.getString("GRANTOR");
-				String grantee=rs.getString("GRANTEE");
-				String privilege=rs.getString("PRIVILEGE");
-				String is_Grantable=rs.getString("IS_GRANTABLE");
+
+			while (rs.next()) {
+				String grantor = rs.getString("GRANTOR");
+				String grantee = rs.getString("GRANTEE");
+				String privilege = rs.getString("PRIVILEGE");
+				String is_Grantable = rs.getString("IS_GRANTABLE");
 				boolean isGrantable;
-				if(is_Grantable==null||is_Grantable.equals("NO")){
-					isGrantable=false;
-				}else{
-					isGrantable=true;
+				if (is_Grantable == null || is_Grantable.equals("NO")) {
+					isGrantable = false;
+				} else {
+					isGrantable = true;
 				}
-				p=new Privilege(grantor, grantee, privilege, isGrantable);
+				p = new Privilege(grantor, grantee, privilege, isGrantable);
 			}
 		} catch (SQLException e) {
 			throw new DatabaseMetaGetMetaException("Table " + tableName + " get Privilege information error!", e);
-		}finally{
+		} finally {
 			JDBCUtils.closeResultSet(rs);
 		}
 		return p;
 
 	}
+
+	protected Map<String,Index> crawlIndex(String tableName, SchemaInfo schemaInfo) {
+		ResultSet rs = null;
+		Map<String, Index> indexs=new HashMap<String, Index>();
+		try {
+			if (schemaInfo == null) {
+				rs = dbm.getIndexInfo(null, null, tableName, false, false);
+			}else{
+				rs=dbm.getIndexInfo(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName, false, false);
+			}
+			while(rs.next()){
+				String name=rs.getString("INDEX_NAME");
+				if(name==null){
+					continue;//oracle will have a null name index
+				}
+				Index i=indexs.get(name);
+				if(i==null){
+					i=new Index();
+					boolean isUnique=rs.getBoolean("NON_UNIQUE");
+					int type=rs.getInt("TYPE");
+					IndexType indexType=IndexType.valueOf(type);
+					int page=rs.getInt("PAGES");
+					i.setUnique(isUnique);
+					i.setIndexType(indexType);
+					i.setPages(page);
+					i.setColumnNames(new ArrayList<String>());
+					indexs.put(name, i);
+					
+				}
+				String columnName=rs.getString("COLUMN_NAME");
+				i.getColumnNames().add(columnName);
+			}
+
+		} catch (SQLException e) {
+			throw new DatabaseMetaGetMetaException("Table " + tableName + " get index information error!", e);
+		}finally {
+			JDBCUtils.closeResultSet(rs);
+		}
+		return indexs;
+
+	}
+	
+	protected abstract Map<String, Constraint> crawlConstraint(String tableName, SchemaInfo schemaInfo);
+	
+	
 
 	protected ForeignKeyColumnReference packForeignKeyColumnReference(ResultSet rs) throws SQLException {
 		String pk_cat = rs.getString("PKTABLE_CAT");

@@ -1,9 +1,14 @@
 package com.cgs.db.meta.schema;
 
-import java.util.logging.Level;
-
+/**
+ * <p>Primary key and Foreign key is constraint. But we have show it an other way</p>
+ * 
+ * @author xumh
+ *
+ */
 public enum TableConstraintType {
-	unknown("unknown"), check("CHECK"), unique("UNIQUE"), primary_key("PRIMARY KEY"), foreign_key("FOREIGN KEY");
+	unknown("unknown"), check("CHECK"), unique("UNIQUE");
+//	, primary_key("PRIMARY KEY"), foreign_key("FOREIGN KEY");
 
 	/**
 	 * Find the enumeration value corresponding to the string.

@@ -7,7 +7,6 @@ public class Column implements Serializable{
 	
 	private String name;
 	private String comment;
-	private boolean unique;
 	private boolean nullable;
 	private int type;//just the java.sql.Type
 	private String typeName;//column type name
@@ -27,12 +26,6 @@ public class Column implements Serializable{
 	}
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-	public boolean isUnique() {
-		return unique;
-	}
-	public void setUnique(boolean unique) {
-		this.unique = unique;
 	}
 	public boolean isNullable() {
 		return nullable;
@@ -76,12 +69,12 @@ public class Column implements Serializable{
 	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
-	@Override
-	public String toString() {
-		return "Column [name=" + name + ", comment=" + comment + ", unique=" + unique + ", nullable=" + nullable + ", type=" + type + ", typeName=" + typeName
-				+ ", length=" + length + ", precision=" + precision + ", scale=" + scale + ", defaultValue=" + defaultValue + "]";
-	}
 	
+	public String toString() {
+		return "Column [name=" + name + ", comment=" + comment + ", nullable=" + nullable + ", type=" + type + ", typeName=" + typeName + ", length=" + length
+				+ ", precision=" + precision + ", scale=" + scale + ", defaultValue=" + defaultValue + "]";
+	}
+
 	
 	
 }

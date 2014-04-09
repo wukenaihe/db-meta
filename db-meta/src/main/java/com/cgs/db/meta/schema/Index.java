@@ -7,11 +7,12 @@ public class Index implements Serializable{
 
 	private static final long serialVersionUID = -4194272041788122320L;
 	
+	private String name;
 	private boolean isUnique;
 	private IndexType indexType;
 	private int pages;
 	private StringBuilder definition;
-	private List<Column> columns;
+	private List<String> columnNames;
 	
 	public boolean isUnique() {
 		return isUnique;
@@ -37,12 +38,24 @@ public class Index implements Serializable{
 	public void setDefinition(StringBuilder definition) {
 		this.definition = definition;
 	}
-	public List<Column> getColumns() {
-		return columns;
+	public List<String> getColumnNames() {
+		return columnNames;
 	}
-	public void setColumns(List<Column> columns) {
-		this.columns = columns;
+	public void setColumnNames(List<String> columnNames) {
+		this.columnNames = columnNames;
 	}
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String toString() {
+		return "Index [isUnique=" + isUnique + ", indexType=" + indexType + ", pages=" + pages + ", definition=" + definition + ", columnNames=" + columnNames
+				+ "]";
+	}
+	
 	
 	
 }

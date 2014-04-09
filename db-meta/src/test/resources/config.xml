@@ -109,6 +109,6 @@
 		</property>
 	</bean>
 	<bean id="metaLoader" class="com.cgs.db.meta.core.MetaLoaderImpl">
-		<property name="dataSource" ref="dataSource1"></property>
+		<property name="dataSource" ref="dataSource"></property>
 	</bean>
 </beans>
