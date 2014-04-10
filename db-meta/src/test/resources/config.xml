@@ -90,7 +90,7 @@
 			<value>net.sourceforge.jtds.jdbc.Driver</value>
 		</property>
 		<property name="url">
-			<value>jdbc:jtds:sqlserver://172.18.0.81:1433;databaseName=DCTest</value>
+			<value>jdbc:jtds:sqlserver://172.18.0.81:1433;databaseName=rddata</value>
 		</property>
 		<property name="username">
 			<value>sa</value>
@@ -109,6 +109,6 @@
 		</property>
 	</bean>
 	<bean id="metaLoader" class="com.cgs.db.meta.core.MetaLoaderImpl">
-		<property name="dataSource" ref="dataSource"></property>
+		<property name="dataSource" ref="dataSource2"></property>
 	</bean>
 </beans>

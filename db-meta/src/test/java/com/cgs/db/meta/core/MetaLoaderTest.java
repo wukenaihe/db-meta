@@ -58,7 +58,7 @@ public class MetaLoaderTest {
 //	@Ignore
 	public void getTableInfo() {
 		long startTime = System.currentTimeMillis();
-		String tableName = "des_primary_key_des_column";// Oracle:"PUMP",mySql:"person_info":sql
+		String tableName = "testcolumntype";// Oracle:"PUMP",mySql:"person_info":sql
 													// server:"Dataset"
 		Table table = metaLoader.getTable(tableName,SchemaInfoLevel.max());
 		System.out.println(table);
