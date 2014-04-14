@@ -1,8 +1,10 @@
 package com.cgs.db.meta.core;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -62,6 +64,27 @@ public interface MetaLoader {
 	 */
 	Schema getSchema(SchemaInfoLevel level);
 	
+	
+	/**
+	 * get currrent schema's procedure names.
+	 * 
+	 * @return Set<String>
+	 */
+	Set<String> getProcedureNames();
+	
+	/**
+	 * get the procedure names
+	 * 
+	 * @param schemaInfo
+	 * @return
+	 */
+//	Set<String> getProcedureNames(SchemaInfo schemaInfo);
+	
+	Procedure getProcedure(String procedureName);
+	
+//	Procedure getProcedure(String procedureName,SchemaInfo schemaInfo);
+	
+	Map<String,Procedure> getProcedures();
 	
 	/**
 	 * get this database's all the Schema.

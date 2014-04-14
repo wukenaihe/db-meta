@@ -37,6 +37,7 @@ import com.cgs.db.meta.schema.Index;
 import com.cgs.db.meta.schema.IndexType;
 import com.cgs.db.meta.schema.PrimaryKey;
 import com.cgs.db.meta.schema.Privilege;
+import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -506,4 +507,23 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 		return database;
 	}
 
+	public Set<String> getProcedureNames(SchemaInfo schemaInfo){
+		Set<String> procedures = new HashSet<String>();
+		ResultSet rs;
+		try {
+			if(schemaInfo==null){
+				rs = dbm.getProcedures(null, null, null);
+			}else{
+				rs=dbm.getProcedures(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), null);
+			}
+			while (rs.next()) {
+				String tableName = rs.getString("PROCEDURE_NAME");
+				procedures.add(tableName);
+			}
+		} catch (SQLException e) {
+			throw new NonTransientDataAccessException(e.getMessage(), e);
+		}
+
+		return procedures;
+	}
 }

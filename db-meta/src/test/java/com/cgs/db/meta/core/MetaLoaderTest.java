@@ -1,5 +1,6 @@
 package com.cgs.db.meta.core;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.After;
@@ -13,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -55,7 +57,7 @@ public class MetaLoaderTest {
 	}
 
 	@Test
-//	@Ignore
+	@Ignore
 	public void getTableInfo() {
 		long startTime = System.currentTimeMillis();
 		String tableName = "testcolumntype";// Oracle:"PUMP",mySql:"person_info":sql
@@ -94,7 +96,7 @@ public class MetaLoaderTest {
 	@Test
 	@Ignore
 	public void getSchema() {
-		Schema schema = metaLoader.getSchema();
+		Schema schema = metaLoader.getSchema(SchemaInfoLevel.max());
 		System.out.println(schema);
 	}
 
@@ -129,4 +131,27 @@ public class MetaLoaderTest {
 			System.out.println(schemaNum);
 		}
 	}
+	
+	@Test
+	@Ignore
+	public void getProcedureNames(){
+		Set<String> procedureNames=metaLoader.getProcedureNames();
+		System.out.println(procedureNames);
+	}
+	
+	@Test
+	@Ignore
+	public void getProcedure(){
+		Procedure p=metaLoader.getProcedure("dt_generateansiname");
+		System.out.println(p);
+	}
+	
+	@Test
+//	@Ignore
+	public void getProcedures(){
+		Map<String, Procedure> ps=metaLoader.getProcedures();
+		System.out.println(ps);
+		System.out.println(ps.size());
+	}
+	
 }

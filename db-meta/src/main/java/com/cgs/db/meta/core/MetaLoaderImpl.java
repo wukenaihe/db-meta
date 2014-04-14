@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -21,6 +22,7 @@ import com.cgs.db.meta.retriever.OracleMetaCrawler;
 import com.cgs.db.meta.retriever.SqlServerMetaCrawler;
 import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
+import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -170,8 +172,57 @@ public class MetaLoaderImpl implements MetaLoader {
 		return getDatabase(SchemaInfoLevel.standard());
 	}
 
+	private Set<String> getProcedureNames(SchemaInfo schemaInfo) {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		Set<String> procedureNames;
+		try{
+			metaCrawler=factory.newInstance(con);
+			procedureNames=metaCrawler.getProcedureNames(schemaInfo);
+			return procedureNames;
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
 	
-	
+	public Set<String> getProcedureNames(){
+		return getProcedureNames(null);
+	}
+
+	public Procedure getProcedure(String procedureName) {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		Procedure p;
+		try{
+			metaCrawler=factory.newInstance(con);
+			p=metaCrawler.getProcedure(procedureName);
+			return p;
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Map<String,Procedure> getProcedures() {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		Map<String, Procedure> p;
+		try{
+			metaCrawler=factory.newInstance(con);
+			p=metaCrawler.getProcedures();
+			return p;
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
 
 	
 

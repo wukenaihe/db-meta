@@ -1,9 +1,11 @@
 package com.cgs.db.util;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.cgs.db.exception.CannotGetJdbcConnectionException;
 import com.cgs.db.exception.DataAccessException;
+import com.cgs.db.exception.DatabaseMetaGetMetaException;
+import com.cgs.db.meta.schema.Procedure;
 
 public class JDBCUtils {
 	private static Logger logger=LoggerFactory.getLogger(JDBCUtils.class);
@@ -93,4 +97,25 @@ public class JDBCUtils {
 			}
 		}
 	}
+	
+	public static <T> T query(DatabaseMetaData dbm,String sql,String exceptionMessage,ResultSetExtractor<T> rsExtractor,Object... args){
+		ResultSet rs=null;
+		PreparedStatement st=null;
+		try{
+			Connection con=dbm.getConnection();
+			 st=con.prepareStatement(sql);
+			for(int i=1;i<=args.length;++i){
+				st.setObject(i, args[i-1]);
+			}
+			rs=st.executeQuery();
+			return rsExtractor.extractData(rs);
+		}catch(SQLException e){
+			throw new DatabaseMetaGetMetaException(exceptionMessage, e);
+		}finally{
+			JDBCUtils.closePreparedStatement(st);
+			JDBCUtils.closeResultSet(rs);
+		}
+	}
+
+
 }
