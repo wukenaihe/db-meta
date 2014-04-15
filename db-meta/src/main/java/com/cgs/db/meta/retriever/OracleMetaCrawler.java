@@ -22,8 +22,11 @@ import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableConstraintType;
+import com.cgs.db.meta.schema.Trigger;
+import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
 import com.cgs.db.util.ResultSetExtractor;
+import com.cgs.db.util.Utility;
 
 public class OracleMetaCrawler extends AbstractMetaCrawler {
 	private Logger logger = LoggerFactory.getLogger(OracleMetaCrawler.class);
@@ -34,6 +37,15 @@ public class OracleMetaCrawler extends AbstractMetaCrawler {
 	public final static String GET_PROCEDURE_SQL = "select name,text from user_source where type='PROCEDURE' and name=? order by Line";
 
 	public final static String GET_PROCEDURES_SQL = "select name,text from user_source where type='PROCEDURE' order by name,Line";
+	
+	public final static String GET_TRIGGERNAME_SQL="select Distinct name from user_source where type='TRIGGER'";
+	
+	public final static String GET_TRIGGER_SQL = "select name,text from user_source where type='TRIGGER' and name=? order by Line";
+	
+	public final static String GET_TRIGGERS_SQL = "select name,text from user_source where type='TRIGGER' order by name,Line";
+	
+	public final static String GET_TRIGGERS_BYTABLE_SQL="select trigger_name,Description,Trigger_Body,Table_Name"
+			+ " from All_Triggers where Owner=? and table_name= ?";
 
 	public OracleMetaCrawler() {
 
@@ -211,6 +223,7 @@ public class OracleMetaCrawler extends AbstractMetaCrawler {
 	}
 
 	public Procedure getProcedure(String procedureName) {
+		Assert.notNull(procedureName, "procedure name can not be null");
 		String message = "Get database(Oracle) " + procedureName + "'s definition information error!";
 		return JDBCUtils.query(dbm, GET_PROCEDURE_SQL, message, new ResultSetExtractor<Procedure>() {
 
@@ -250,4 +263,104 @@ public class OracleMetaCrawler extends AbstractMetaCrawler {
 			}
 		});
 	}
+	
+	public Set<String> getTriggerNames(){
+		String message="Get database(Oracle) current user's trigger names";
+		Set<String> names=JDBCUtils.query(dbm, GET_TRIGGERNAME_SQL, message, new ResultSetExtractor<Set<String>>() {
+
+			public Set<String> extractData(ResultSet rs) throws SQLException {
+				Set<String> names=new HashSet<String>();
+				while(rs.next()){
+					String name=rs.getString("name");
+					names.add(name);
+				}
+				return names;
+			}
+		});
+		return names;
+	}
+	
+	public Trigger getTrigger(String triggerName) {
+		Assert.notNull(triggerName, "triggerName can not be null");
+		String message = "Get database(Oracle) " + triggerName + "'s definition information error!";
+		return JDBCUtils.query(dbm, GET_TRIGGER_SQL, message, new ResultSetExtractor<Trigger>() {
+
+			public Trigger extractData(ResultSet rs) throws SQLException {
+				Trigger p = null;
+				while (rs.next()) {
+					if (p == null) {
+						p = new Trigger();
+						p.setName(rs.getString("name"));
+					}
+					p.appendStr(rs.getString("text"));
+				}
+				return p;
+			}
+
+		}, triggerName);
+	}
+	
+	public Map<String, Trigger> getTriggers() {
+		String message = "Get database(Oracle)  definition information error!";
+		return JDBCUtils.query(dbm, GET_TRIGGERS_SQL, message, new ResultSetExtractor<Map<String, Trigger>>() {
+
+			public Map<String, Trigger> extractData(ResultSet rs) throws SQLException {
+				Map<String, Trigger> triggers = new HashMap<String, Trigger>();
+				Trigger p;
+				while (rs.next()) {
+					String name = rs.getString("name");
+					p = triggers.get(name);
+					if (p == null) {
+						p = new Trigger();
+						p.setName(rs.getString("name"));
+						triggers.put(name, p);
+					}
+					p.appendStr(rs.getString("text"));
+				}
+				return triggers;
+			}
+		});
+	}
+
+	protected Map<String, Trigger> crawleTriggers(String tableName, SchemaInfo schemaInfo) {
+		String message = "Get database(My sql)  "+tableName+"'s triggers information error!";
+		String schema;
+		if(schemaInfo==null||schemaInfo.getSchemaName()==null){
+			schema=getSchemaName();
+		}else{
+			schema=schemaInfo.getSchemaName();
+		}
+		Map<String, Trigger> triggers=JDBCUtils.query(dbm, GET_TRIGGERS_BYTABLE_SQL, message, new ResultSetExtractor<Map<String, Trigger>>() {
+
+			public Map<String, Trigger> extractData(ResultSet rs) throws SQLException {
+				Map<String, Trigger> triggers = new HashMap<String, Trigger>();
+				while(rs.next()){
+					String trigger_name=rs.getString("trigger_name");
+					String description=rs.getString("Description");
+					String trigger_Body=rs.getString("Trigger_Body");
+					String table_name=rs.getString("Table_Name");
+					Trigger trigger=new Trigger();
+					trigger.appendStr("create or replace Trigger \n");
+					trigger.appendStr(description);
+					trigger.appendStr(trigger_Body);
+					trigger.setTableName(table_name);
+					
+					triggers.put(trigger_name, trigger);
+				}
+				return triggers;
+			}
+		}, schema,tableName);
+		return triggers;
+	}
+	
+	
+	private String getSchemaName(){
+		try {
+			String schema=dbm.getUserName();
+			return schema;
+		} catch (SQLException e) {
+			throw new DatabaseMetaGetMetaException("Get database(Oracle) cataglog name error!", e);
+		}
+	}
+
 }

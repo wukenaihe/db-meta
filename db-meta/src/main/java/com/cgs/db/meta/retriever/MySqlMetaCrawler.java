@@ -20,8 +20,11 @@ import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableConstraintType;
+import com.cgs.db.meta.schema.Trigger;
+import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
 import com.cgs.db.util.ResultSetExtractor;
+import com.cgs.db.util.Utility;
 
 public class MySqlMetaCrawler extends AbstractMetaCrawler {
 
@@ -31,9 +34,23 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 
 	public static final String GET_PROCEDURE_SQL = "select routine_name name,routine_definition definition from information_schema.ROUTINES "
 			+ "where ROUTINE_TYPE='PROCEDURE' and routine_name =? and ROUTINE_SCHEMA=?";
-	
+
 	public static final String GET_PROCEDURES_SQL = "select routine_name name,routine_definition definition from information_schema.ROUTINES "
 			+ "where ROUTINE_TYPE='PROCEDURE'";
+	
+	public static final String GET_TRIGGERNAMES_SQL="select trigger_name name from information_schema.TRIGGERS "
+			+ "where trigger_schema=?";
+	
+	public static final String GET_TRIGGER_SQL="select definer,trigger_schema,trigger_name,action_timing,"
+			+ "event_manipulation,event_object_table,action_orientation,action_statement from information_schema.TRIGGERS where trigger_schema =? and TRIGGER_NAME=?";
+	
+	public static final String GET_TRIGGERS_SQL="select definer,trigger_schema,trigger_name,action_timing,"
+			+ "event_manipulation,event_object_table,action_orientation,action_statement"
+			+ " from information_schema.TRIGGERS where trigger_schema =?";
+	
+	
+	public static final String GET_TRIGGERS_BYTABLE_SQL="select definer,trigger_schema,trigger_name,action_timing,event_manipulation,event_object_table,action_orientation,action_statement"
+			+ " from information_schema.TRIGGERS where trigger_schema =? and event_object_table=?";
 
 	public MySqlMetaCrawler() {
 
@@ -106,13 +123,14 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 	}
 
 	public Procedure getProcedure(String procedureName) {
-		String message="Get database(MySql)  procedure information error!";
-		String schema=getSchemaName();
-	
+		Assert.notNull(procedureName, "procedure name can not be null");
+		String message = "Get database(MySql)  procedure information error!";
+		String schema = getSchemaName();
+
 		Procedure p = JDBCUtils.query(dbm, GET_PROCEDURE_SQL, message, new ResultSetExtractor<Procedure>() {
 
 			public Procedure extractData(ResultSet rs) throws SQLException {
-				Procedure p=null;
+				Procedure p = null;
 				while (rs.next()) {
 					String name = rs.getString("name");
 					String definition = rs.getString("definition");
@@ -124,17 +142,17 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 				}
 				return p;
 			}
-		}, procedureName,schema);
-		
+		}, procedureName, schema);
+
 		return p;
 
 	}
-	
-	private String getSchemaName(){
+
+	private String getSchemaName() {
 		String schema;
 		try {
 			Connection con = dbm.getConnection();
-			schema=con.getCatalog();
+			schema = con.getCatalog();
 		} catch (SQLException e) {
 			throw new DatabaseMetaGetMetaException("Get database(mysql) cataglog name error!", e);
 		}
@@ -142,16 +160,16 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 	}
 
 	public Map<String, Procedure> getProcedures() {
-String message="Get database(mysql)  definition information error!";
-		
-		Map<String, Procedure> procedures=JDBCUtils.query(dbm, GET_PROCEDURES_SQL, message, new ResultSetExtractor<Map<String, Procedure>>() {
+		String message = "Get database(mysql)  definition information error!";
+
+		Map<String, Procedure> procedures = JDBCUtils.query(dbm, GET_PROCEDURES_SQL, message, new ResultSetExtractor<Map<String, Procedure>>() {
 
 			public Map<String, Procedure> extractData(ResultSet rs) throws SQLException {
-				Map<String, Procedure> procedures=new HashMap<String, Procedure>();
-				while(rs.next()){
-					Procedure p=new Procedure();
-					String name=rs.getString("name");
-					String definition=rs.getString("definition");
+				Map<String, Procedure> procedures = new HashMap<String, Procedure>();
+				while (rs.next()) {
+					Procedure p = new Procedure();
+					String name = rs.getString("name");
+					String definition = rs.getString("definition");
 					p.setName(name);
 					p.appendStr(definition);
 					procedures.put(name, p);
@@ -159,7 +177,124 @@ String message="Get database(mysql)  definition information error!";
 				return procedures;
 			}
 		});
-		
+
 		return procedures;
+	}
+	
+	public Set<String> getTriggerNames(){
+		String message="Get database(My sql) current user's trigger names";
+		Set<String> names=JDBCUtils.query(dbm, GET_TRIGGERNAMES_SQL, message, new ResultSetExtractor<Set<String>>() {
+
+			public Set<String> extractData(ResultSet rs) throws SQLException {
+				Set<String> names=new HashSet<String>();
+				while(rs.next()){
+					String name=rs.getString("name");
+					names.add(name);
+				}
+				return names;
+			}
+		});
+		return names;
+	}
+	
+	public Trigger getTrigger(String triggerName){
+		Assert.notNull(triggerName, "triggerName can not be null");
+		String message = "Get database(Oracle) " + triggerName + "'s definition information error!";
+		String schema=getSchemaName();
+		Trigger trigger=JDBCUtils.query(dbm, GET_TRIGGER_SQL, message, new ResultSetExtractor<Trigger>() {
+
+			public Trigger extractData(ResultSet rs) throws SQLException {
+				Trigger trigger = null;
+				while(rs.next()){
+					String definer=rs.getString("definer");
+					String trigger_schema=rs.getString("trigger_schema");
+					String trigger_name=rs.getString("trigger_name");
+					String action_timing=rs.getString("action_timing");
+					String table=rs.getString("event_object_table");
+					String action_orientation=rs.getString("action_orientation");
+					String action_statement=rs.getString("action_statement");
+					trigger=new Trigger();
+					trigger.appendStr("CREATE DEFINER = "+definer+"\n");
+					trigger.appendStr("\tTrigger "+Utility.quote(trigger_schema)+"."+Utility.quote(trigger_name)+"\n");
+					trigger.appendStr("\t"+action_timing+" on "+Utility.quote(table)+"\n");
+					trigger.appendStr("\tFor each "+action_orientation+"\n");
+					trigger.appendStr(action_statement);
+					trigger.setName(trigger_name);
+					trigger.setTableName(table);
+				}
+				return trigger;
+			}
+		}, schema,triggerName);
+		return trigger;
+	}
+	
+	public Map<String, Trigger> getTriggers(){
+		String message = "Get database(My sql)  definition information error!";
+		String schema=getSchemaName();
+		Map<String, Trigger> triggers=JDBCUtils.query(dbm, GET_TRIGGERS_SQL, message, new ResultSetExtractor<Map<String, Trigger>>() {
+
+			public Map<String, Trigger> extractData(ResultSet rs) throws SQLException {
+				Map<String, Trigger> triggers = new HashMap<String, Trigger>();
+				while(rs.next()){
+					String definer=rs.getString("definer");
+					String trigger_schema=rs.getString("trigger_schema");
+					String trigger_name=rs.getString("trigger_name");
+					String action_timing=rs.getString("action_timing");
+					String table=rs.getString("event_object_table");
+					String action_orientation=rs.getString("action_orientation");
+					String action_statement=rs.getString("action_statement");
+					Trigger trigger=new Trigger();
+					trigger.appendStr("CREATE DEFINER = "+definer+"\n");
+					trigger.appendStr("\tTrigger "+Utility.quote(trigger_schema)+"."+Utility.quote(trigger_name)+"\n");
+					trigger.appendStr("\t"+action_timing+" on "+Utility.quote(table)+"\n");
+					trigger.appendStr("\tFor each "+action_orientation+"\n");
+					trigger.appendStr(action_statement);
+					trigger.setName(trigger_name);
+					trigger.setTableName(table);
+					
+					triggers.put(trigger_name, trigger);
+				}
+				return triggers;
+			}
+		}, schema);
+		return triggers;
+	}
+
+	
+	protected Map<String, Trigger> crawleTriggers(String tableName, SchemaInfo schemaInfo) {
+		String message = "Get database(My sql)  "+tableName+"'s triggers information error!";
+		String schema;
+		if(schemaInfo==null||schemaInfo.getCatalogName()==null){
+			schema=getSchemaName();
+		}else{
+			schema=schemaInfo.getCatalogName();
+		}
+		Map<String, Trigger> triggers=JDBCUtils.query(dbm, GET_TRIGGERS_BYTABLE_SQL, message, new ResultSetExtractor<Map<String, Trigger>>() {
+
+			public Map<String, Trigger> extractData(ResultSet rs) throws SQLException {
+				Map<String, Trigger> triggers = new HashMap<String, Trigger>();
+				while(rs.next()){
+					String definer=rs.getString("definer");
+					String trigger_schema=rs.getString("trigger_schema");
+					String trigger_name=rs.getString("trigger_name");
+					String action_timing=rs.getString("action_timing");
+					String table=rs.getString("event_object_table");
+					String action_orientation=rs.getString("action_orientation");
+					String action_statement=rs.getString("action_statement");
+					Trigger trigger=new Trigger();
+					trigger.appendStr("CREATE DEFINER = "+definer+"\n");
+					trigger.appendStr("\tTrigger "+Utility.quote(trigger_schema)+"."+Utility.quote(trigger_name)+"\n");
+					trigger.appendStr("\t"+action_timing+" on "+Utility.quote(table)+"\n");
+					trigger.appendStr("\tFor each "+action_orientation+"\n");
+					trigger.appendStr(action_statement);
+					trigger.setName(trigger_name);
+					trigger.setTableName(table);
+					
+					triggers.put(trigger_name, trigger);
+				}
+				return triggers;
+			}
+		}, schema,tableName);
+		return triggers;
 	}
 }

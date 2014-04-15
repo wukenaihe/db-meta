@@ -18,6 +18,7 @@ import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
+import com.cgs.db.meta.schema.Trigger;
 import com.cgs.db.util.PrintUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -73,9 +74,9 @@ public class MetaLoaderTest {
 	@Ignore
 	public void getTableLevel() {
 		long startTime = System.currentTimeMillis();
-		String tableName = "des_table";// Oracle:"PUMP",mySql:"person_info":sql
+		String tableName = "TYPETEST";// Oracle:"PUMP",mySql:"person_info":sql
 										// server:"Dataset"
-		Table table = metaLoader.getTable(tableName, SchemaInfoLevel.min());
+		Table table = metaLoader.getTable(tableName, SchemaInfoLevel.max());
 		System.out.println(table);
 
 		long endTime = System.currentTimeMillis();
@@ -147,11 +148,32 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void getProcedures(){
 		Map<String, Procedure> ps=metaLoader.getProcedures();
 		System.out.println(ps);
 		System.out.println(ps.size());
+	}
+	
+	@Test
+	@Ignore
+	public void getTriggerNames(){
+		Set<String> names=metaLoader.getTriggerNames();
+		System.out.println(names);
+	}
+	
+	@Test
+//	@Ignore
+	public void getTrigger(){
+		Trigger t=metaLoader.getTrigger("trigger_test");
+		System.out.println(t);
+	}
+	
+	@Test
+	@Ignore
+	public void getTriggers(){
+		Map<String, Trigger> ts=metaLoader.getTriggers();
+		System.out.println(ts);
 	}
 	
 }

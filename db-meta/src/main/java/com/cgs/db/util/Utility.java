@@ -28,4 +28,8 @@ public final class Utility {
 	    return text == null || text.isEmpty()
 	           || isAllWhitespacePattern.matcher(text).matches();
 	  }
+	  
+	  public static String quote(String s){
+		  return "'"+s+"'";
+	  }
 }

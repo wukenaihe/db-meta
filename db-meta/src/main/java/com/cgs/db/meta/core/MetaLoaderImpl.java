@@ -26,6 +26,7 @@ import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
+import com.cgs.db.meta.schema.Trigger;
 import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
 
@@ -219,6 +220,48 @@ public class MetaLoaderImpl implements MetaLoader {
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Set<String> getTriggerNames() throws DataAccessException {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getTriggerNames();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get triggerNames error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Trigger getTrigger(String triggerName) throws DataAccessException {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getTrigger(triggerName);
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get trigger error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Map<String, Trigger> getTriggers() throws DataAccessException {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getTriggers();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get triggers error!", e);
 		}finally{
 			JDBCUtils.closeConnection(con);
 		}

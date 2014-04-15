@@ -17,7 +17,7 @@ public class Table implements Serializable{
 	private Map<String,ForeignKey> foreignkeys;
 	private Map<String,Index> indexs;
 	private Map<String,Constraint> constraints;
-	private List<Trigger> triggers;
+	private Map<String,Trigger> triggers;
 	
 	private Privilege privilege;
 	
@@ -71,25 +71,29 @@ public class Table implements Serializable{
 	public void setIndexs(Map<String, Index> indexs) {
 		this.indexs = indexs;
 	}
-	public List<Trigger> getTriggers() {
+
+	
+	public Map<String, Trigger> getTriggers() {
 		return triggers;
 	}
-	public void setTriggers(List<Trigger> triggers) {
+	public void setTriggers(Map<String, Trigger> triggers) {
 		this.triggers = triggers;
 	}
-	
 	public Privilege getPrivilege() {
 		return privilege;
 	}
 	public void setPrivilege(Privilege privilege) {
 		this.privilege = privilege;
 	}
-	@Override
+	
 	public String toString() {
 		return "Table [tableType=" + tableType + ", name=" + name + ", comment=" + comment + ", columns=" + columns + ", primaryKey=" + primaryKey
 				+ ", foreignkeys=" + foreignkeys + ", indexs=" + indexs + ", constraints=" + constraints + ", triggers=" + triggers + ", privilege="
 				+ privilege + "]";
 	}
+
+	
+	
 
 	
 	

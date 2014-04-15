@@ -13,6 +13,7 @@ import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
+import com.cgs.db.meta.schema.Trigger;
 
 public interface MetaCrawler {
 	Set<String> getTableNames();
@@ -44,4 +45,10 @@ public interface MetaCrawler {
 	Procedure getProcedure(String procedureName);
 	
 	Map<String,Procedure> getProcedures();
+	
+	Set<String> getTriggerNames();
+	
+	Trigger getTrigger(String triggerName);
+	
+	Map<String, Trigger> getTriggers();
 }

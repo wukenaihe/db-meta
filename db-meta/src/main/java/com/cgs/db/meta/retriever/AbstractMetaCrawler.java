@@ -42,6 +42,7 @@ import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableType;
+import com.cgs.db.meta.schema.Trigger;
 import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
 
@@ -186,6 +187,12 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 		if(level.isRetrieveTableConstraintInformation()){
 			Map<String, Constraint> constraints=crawlConstraint(tableName, schemaInfo);
 			table.setConstraints(constraints);
+		}
+		
+		//craw trigger
+		if(level.isRetrieveTriggerInformation()){
+			Map<String, Trigger> triggers=crawleTriggers(tableName, schemaInfo);
+			table.setTriggers(triggers);
 		}
 
 		return table;
@@ -413,6 +420,12 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 
 		return foreignKeyColumnReference;
 	}
+	
+	protected abstract Map<String, Trigger> crawleTriggers(String tableName,SchemaInfo schemaInfo);
+	
+	protected Map<String, Trigger> crawlerTriggers(String tableName){
+		return crawleTriggers(tableName,null);
+	}
 
 	public Schema getSchema(SchemaInfoLevel level) {
 		ResultSet rs;
@@ -525,5 +538,17 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 		}
 
 		return procedures;
+	}
+	
+	public Set<String> getTriggerNames(){
+		return null;
+	}
+	
+	public Trigger getTrigger(String triggerName){
+		return null;
+	}
+	
+	public Map<String, Trigger> getTriggers(){
+		return null;
 	}
 }

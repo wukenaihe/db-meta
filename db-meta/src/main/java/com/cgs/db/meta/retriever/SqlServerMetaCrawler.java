@@ -23,6 +23,7 @@ import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.TableConstraintType;
+import com.cgs.db.meta.schema.Trigger;
 import com.cgs.db.util.Assert;
 import com.cgs.db.util.JDBCUtils;
 import com.cgs.db.util.ResultSetExtractor;
@@ -48,6 +49,19 @@ public class SqlServerMetaCrawler extends AbstractMetaCrawler {
 	public final static String GET_PROCEDURES_SQL = "select o.name name,procs.definition definition from sys.all_sql_modules procs "
 			+ "left join sys.objects o on procs.object_id=o.object_id "
 			+ "left join sys.schemas s ON o.schema_id = s.schema_id where o.type='P'";
+	
+	
+	public final static String GET_TRIGGERNAMES_SQL="select tb1.name from Sysobjects tb1 join sys.objects"
+			+ " tb2 on tb1.parent_obj=tb2.object_id where tb1.type='TR'";
+	
+	public final static String GET_TRIGGER_TABLENAME_SQL="select tb2.name name from Sysobjects tb1 join sys.objects tb2 "
+			+ "on tb1.parent_obj=tb2.object_id where tb1.type='TR' and tb1.name=?";
+	
+	public final static String GET_TRIGGER_SQL="exec sp_helptext ?";
+	
+	
+	public final static String GET_TRIGGER_BYTABLE_SQL="select tb1.name from Sysobjects tb1 join sys.objects"
+			+ " tb2 on tb1.parent_obj=tb2.object_id where tb1.type='TR' and tb2.name = ?";
 
 	public SqlServerMetaCrawler() {
 
@@ -206,5 +220,86 @@ public class SqlServerMetaCrawler extends AbstractMetaCrawler {
 		});
 		
 		return procedures;
+	}
+	
+	public Set<String> getTriggerNames(){
+		String message="Get database(Sql server) current user's trigger names";
+		Set<String> triggers=JDBCUtils.query(dbm, GET_TRIGGERNAMES_SQL, message, new ResultSetExtractor<Set<String>>() {
+
+			public Set<String> extractData(ResultSet rs) throws SQLException {
+				Set<String> names=new HashSet<String>();
+				while(rs.next()){
+					String name=rs.getString("name");
+					names.add(name);
+				}
+				return names;
+			}
+		});
+		return triggers;
+	}
+	
+	public Trigger getTrigger(String triggerName){
+		Assert.notNull(triggerName, "triggerName can not be null");
+		String message = "Get database(Sql server) " + triggerName + "'s definition information error!";
+		Trigger trigger=JDBCUtils.query(dbm, GET_TRIGGER_SQL, message, new ResultSetExtractor<Trigger>() {
+
+			public Trigger extractData(ResultSet rs) throws SQLException {
+				Trigger t=null;
+				while(rs.next()){
+					if(t==null){
+						t=new Trigger();
+					}
+					String text=rs.getString("Text");
+					t.appendStr(text);
+				}
+				return t;
+			}
+		}, triggerName);
+		String tableName=JDBCUtils.query(dbm, GET_TRIGGER_TABLENAME_SQL, message, new ResultSetExtractor<String>() {
+
+			public String extractData(ResultSet rs) throws SQLException {
+				while(rs.next()){
+					return rs.getString("name");
+				}
+				return null;
+			}
+		}, triggerName);
+		trigger.setName(triggerName);
+		trigger.setTableName(tableName);
+		return trigger;
+	}
+	
+	public Map<String, Trigger> getTriggers(){
+		Set<String> triggerNames=getTriggerNames();
+		Map<String, Trigger> triggers=new HashMap<String, Trigger>();
+		for (String string : triggerNames) {
+			Trigger t=getTrigger(string);
+			triggers.put(string, t);
+		}
+		return triggers;
+	}
+	
+	protected Map<String, Trigger> crawleTriggers(String tableName, SchemaInfo schemaInfo) {
+		String message = "Get database(sql server)  "+tableName+"'s triggers information error!";
+		Set<String> triggerNames=JDBCUtils.query(dbm, GET_TRIGGER_BYTABLE_SQL, message, new ResultSetExtractor<Set<String>>() {
+
+			public Set<String> extractData(ResultSet rs) throws SQLException {
+				Set<String> names=new HashSet<String>();
+				while(rs.next()){
+					String name=rs.getString("name");
+					names.add(name);
+				}
+				return names;
+			}
+		}, tableName);
+		
+		Map<String, Trigger> triggers=new HashMap<String, Trigger>();
+		for (String string : triggerNames) {
+			Trigger t=getTrigger(string);
+			t.setTableName(tableName);
+			t.setName(string);
+			triggers.put(string, t);
+		}
+		return triggers;
 	}
 }

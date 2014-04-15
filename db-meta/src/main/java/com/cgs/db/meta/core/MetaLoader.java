@@ -3,11 +3,13 @@ package com.cgs.db.meta.core;
 import java.util.Map;
 import java.util.Set;
 
+import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
+import com.cgs.db.meta.schema.Trigger;
 
 public interface MetaLoader {
 	/**
@@ -15,7 +17,7 @@ public interface MetaLoader {
 	 * 
 	 * @return Set<String>
 	 */
-	Set<String> getTableNames();
+	Set<String> getTableNames() throws DataAccessException;
 	
 	/**
 	 * get current datasource own schema's table.Default Level Table contaion
@@ -25,7 +27,7 @@ public interface MetaLoader {
 	 * @param tableName
 	 * @return Table
 	 */
-	Table getTable(String tableName);
+	Table getTable(String tableName) throws DataAccessException;
 	
 	
 	/**
@@ -35,26 +37,26 @@ public interface MetaLoader {
 	 * @param schemaLevel 
 	 * @return
 	 */
-	Table getTable(String tableName,SchemaInfoLevel schemaLevel);
+	Table getTable(String tableName,SchemaInfoLevel schemaLevel) throws DataAccessException;
 	
 	
-	Table getTable(String tableName,SchemaInfo schemaInfo);
+	Table getTable(String tableName,SchemaInfo schemaInfo) throws DataAccessException;
 		
 	/**
 	 * Gets the database's schema information
 	 * 
 	 * @return SchemaInfo
 	 */
-	Set<SchemaInfo> getSchemaInfos();
+	Set<SchemaInfo> getSchemaInfos() throws DataAccessException;
 	
 	/**
 	 * get current datasource own Schema
 	 * 
 	 * @return Schema
 	 */
-	Schema getSchema();
+	Schema getSchema() throws DataAccessException;
 	
-	Schema getSchema(SchemaInfo schemaInfo);
+	Schema getSchema(SchemaInfo schemaInfo) throws DataAccessException;
 	
 	/**
 	 *  get current datasource own Schema
@@ -62,7 +64,7 @@ public interface MetaLoader {
 	 * @param level
 	 * @return Schema
 	 */
-	Schema getSchema(SchemaInfoLevel level);
+	Schema getSchema(SchemaInfoLevel level) throws DataAccessException;
 	
 	
 	/**
@@ -70,21 +72,30 @@ public interface MetaLoader {
 	 * 
 	 * @return Set<String>
 	 */
-	Set<String> getProcedureNames();
+	Set<String> getProcedureNames() throws DataAccessException;
 	
 	/**
-	 * get the procedure names
+	 * get procedure (current user can access)
 	 * 
-	 * @param schemaInfo
-	 * @return
+	 * @param procedureName the procedure's name(not be null)
+	 * @return 
+	 */	
+	Procedure getProcedure(String procedureName) throws DataAccessException;
+		
+	/**
+	 * get procedures (current user can access)
+	 * 
+	 * @return Map<String,Procedure>
 	 */
-//	Set<String> getProcedureNames(SchemaInfo schemaInfo);
+	Map<String,Procedure> getProcedures() throws DataAccessException;
 	
-	Procedure getProcedure(String procedureName);
 	
-//	Procedure getProcedure(String procedureName,SchemaInfo schemaInfo);
+	Set<String> getTriggerNames() throws DataAccessException;
 	
-	Map<String,Procedure> getProcedures();
+	Trigger getTrigger(String triggerName) throws DataAccessException;
+	
+	Map<String, Trigger> getTriggers() throws DataAccessException;
+	
 	
 	/**
 	 * get this database's all the Schema.
@@ -94,7 +105,7 @@ public interface MetaLoader {
 	 * @return Database
 	 */
 	@Deprecated
-	Database getDatabase();
+	Database getDatabase() throws DataAccessException;
 	
 	/**
 	 * get this database's all the Schema
@@ -105,5 +116,5 @@ public interface MetaLoader {
 	 * @return Database
 	 */
 	@Deprecated
-	Database getDatabase(SchemaInfoLevel level);
+	Database getDatabase(SchemaInfoLevel level) throws DataAccessException;
 }
