@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
@@ -89,12 +90,34 @@ public interface MetaLoader {
 	 */
 	Map<String,Procedure> getProcedures() throws DataAccessException;
 	
-	
+	/**
+	 * get currrent schema's access trigger names.
+	 * 
+	 * @return Set<String>
+	 */
 	Set<String> getTriggerNames() throws DataAccessException;
 	
+	/**
+	 * get trigger (current user can access)
+	 * 
+	 * @param triggerName the trigger's name(not be null)
+	 * @return 
+	 */	
 	Trigger getTrigger(String triggerName) throws DataAccessException;
 	
+	/**
+	 * get trigger (current user can access)
+	 * 
+	 * @return Map<String,Trigger>
+	 */
 	Map<String, Trigger> getTriggers() throws DataAccessException;
+	
+	
+	Set<String> getFunctionNames() throws DataAccessException;
+	
+	Function getFunction(String name) throws DataAccessException;
+	
+	Map<String, Function> getFunctions() throws DataAccessException;
 	
 	
 	/**

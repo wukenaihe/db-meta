@@ -33,6 +33,7 @@ import com.cgs.db.meta.schema.ForeignKey;
 import com.cgs.db.meta.schema.ForeignKeyColumnReference;
 import com.cgs.db.meta.schema.ForeignKeyDeferrability;
 import com.cgs.db.meta.schema.ForeignKeyUpdateRule;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.Index;
 import com.cgs.db.meta.schema.IndexType;
 import com.cgs.db.meta.schema.PrimaryKey;
@@ -538,17 +539,5 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 		}
 
 		return procedures;
-	}
-	
-	public Set<String> getTriggerNames(){
-		return null;
-	}
-	
-	public Trigger getTrigger(String triggerName){
-		return null;
-	}
-	
-	public Map<String, Trigger> getTriggers(){
-		return null;
 	}
 }

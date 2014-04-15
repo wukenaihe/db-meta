@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.meta.schema.Database;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
@@ -163,7 +164,7 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void getTrigger(){
 		Trigger t=metaLoader.getTrigger("trigger_test");
 		System.out.println(t);
@@ -176,4 +177,25 @@ public class MetaLoaderTest {
 		System.out.println(ts);
 	}
 	
+	
+	@Test
+	@Ignore
+	public void getFunctionNames(){
+		Set<String>  names=metaLoader.getFunctionNames();
+		System.out.println(names);
+	}
+	
+	@Test
+	@Ignore
+	public void getFunction(){
+		Function functio=metaLoader.getFunction("Functontest");
+		System.out.println(functio);
+	}
+	
+	@Test
+//	@Ignore
+	public void getFunctions(){
+		Map<String, Function> functions=metaLoader.getFunctions();
+		System.out.println(functions);
+	}
 }

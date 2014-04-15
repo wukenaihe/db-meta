@@ -3,11 +3,13 @@ package com.cgs.db.meta.retriever;
 import java.util.Map;
 import java.util.Set;
 
+import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Column;
 import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
 import com.cgs.db.meta.schema.ForeignKey;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.PrimaryKey;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
@@ -51,4 +53,10 @@ public interface MetaCrawler {
 	Trigger getTrigger(String triggerName);
 	
 	Map<String, Trigger> getTriggers();
+	
+	Set<String> getFunctionNames();
+	
+	Function getFunction(String name);
+	
+	Map<String, Function> getFunctions();
 }

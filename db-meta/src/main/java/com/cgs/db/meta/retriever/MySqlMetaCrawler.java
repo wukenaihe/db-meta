@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Constraint;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -51,6 +52,17 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 	
 	public static final String GET_TRIGGERS_BYTABLE_SQL="select definer,trigger_schema,trigger_name,action_timing,event_manipulation,event_object_table,action_orientation,action_statement"
 			+ " from information_schema.TRIGGERS where trigger_schema =? and event_object_table=?";
+	
+	
+	public static final String GET_FUNCTIONNAME_SQL="select routine_name name from information_schema.ROUTINES "
+			+ "where ROUTINE_TYPE='FUNCTION' and ROUTINE_SCHEMA=?";
+	
+	public static final String GET_FUNCTION_SQL="select routine_name name,routine_definition definition from information_schema.ROUTINES "
+			+ "where ROUTINE_TYPE='FUNCTION' and routine_name =? and ROUTINE_SCHEMA=?";
+	
+	
+	public static final String GET_FUNCTIONS_SQL="select routine_name name,routine_definition definition "
+			+ "from information_schema.ROUTINES where ROUTINE_TYPE='FUNCTION' and ROUTINE_SCHEMA =?";
 
 	public MySqlMetaCrawler() {
 
@@ -229,7 +241,7 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 	}
 	
 	public Map<String, Trigger> getTriggers(){
-		String message = "Get database(My sql)  definition information error!";
+		String message = "Get database(My sql)  trigger information error!";
 		String schema=getSchemaName();
 		Map<String, Trigger> triggers=JDBCUtils.query(dbm, GET_TRIGGERS_SQL, message, new ResultSetExtractor<Map<String, Trigger>>() {
 
@@ -296,5 +308,71 @@ public class MySqlMetaCrawler extends AbstractMetaCrawler {
 			}
 		}, schema,tableName);
 		return triggers;
+	}
+	
+	public Set<String> getFunctionNames(){
+		String message="Get database(My sql) current user's function names";
+		String schema=getSchemaName();
+		Set<String> names=JDBCUtils.query(dbm, GET_FUNCTIONNAME_SQL, message, new ResultSetExtractor<Set<String>>() {
+
+			public Set<String> extractData(ResultSet rs) throws SQLException {
+				Set<String> names=new HashSet<String>();
+				while(rs.next()){
+					String name=rs.getString("name");
+					names.add(name);
+				}
+				return names;
+			}
+		},schema);
+		return names;
+	}
+	
+	public Function getFunction(String name) {
+		Assert.notNull(name, "function name can not be null");
+		String message = "Get database(MySql) function information error!";
+		String schema = getSchemaName();
+
+		Function p = JDBCUtils.query(dbm, GET_FUNCTION_SQL, message, new ResultSetExtractor<Function>() {
+
+			public Function extractData(ResultSet rs) throws SQLException {
+				Function p = null;
+				while (rs.next()) {
+					String name = rs.getString("name");
+					String definition = rs.getString("definition");
+					if (p == null) {
+						p = new Function();
+						p.setName(name);
+					}
+					p.appendStr(definition);
+				}
+				return p;
+			}
+		}, name, schema);
+
+		return p;
+
+	}
+	
+	public Map<String, Function> getFunctions() {
+		String message = "Get database(mysql)  function information error!";
+		String schema=getSchemaName();
+
+		Map<String, Function> functions = JDBCUtils.query(dbm, GET_FUNCTIONS_SQL, message, new ResultSetExtractor<Map<String, Function>>() {
+
+			public Map<String, Function> extractData(ResultSet rs) throws SQLException {
+				Map<String, Function> functions = new HashMap<String, Function>();
+				while (rs.next()) {
+					Function p = new Function();
+					String name = rs.getString("name");
+					String definition = rs.getString("definition");
+					p.setName(name);
+					p.appendStr(definition);
+					functions.put(name, p);
+				}
+				return functions;
+			}
+		},schema);
+
+		return functions;
 	}
 }

@@ -22,6 +22,7 @@ import com.cgs.db.meta.retriever.OracleMetaCrawler;
 import com.cgs.db.meta.retriever.SqlServerMetaCrawler;
 import com.cgs.db.meta.schema.Database;
 import com.cgs.db.meta.schema.DatabaseInfo;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
@@ -259,6 +260,48 @@ public class MetaLoaderImpl implements MetaLoader {
 		try{
 			metaCrawler=factory.newInstance(con);
 			return metaCrawler.getTriggers();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get triggers error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Set<String> getFunctionNames() throws DataAccessException {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getFunctionNames();
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get triggers error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Function getFunction(String name) throws DataAccessException {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getFunction(name);
+		}catch(DataAccessException e){
+			logger.debug(e.getMessage(),e);
+			throw new DatabaseMetaGetMetaException("Get triggers error!", e);
+		}finally{
+			JDBCUtils.closeConnection(con);
+		}
+	}
+
+	public Map<String, Function> getFunctions() throws DataAccessException {
+		Connection con = JDBCUtils.getConnection(dataSource);
+		MetaCrawler metaCrawler=null;
+		try{
+			metaCrawler=factory.newInstance(con);
+			return metaCrawler.getFunctions();
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get triggers error!", e);

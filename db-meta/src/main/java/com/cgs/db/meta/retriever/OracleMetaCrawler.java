@@ -18,6 +18,7 @@ import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Constraint;
+import com.cgs.db.meta.schema.Function;
 import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
@@ -46,6 +47,12 @@ public class OracleMetaCrawler extends AbstractMetaCrawler {
 	
 	public final static String GET_TRIGGERS_BYTABLE_SQL="select trigger_name,Description,Trigger_Body,Table_Name"
 			+ " from All_Triggers where Owner=? and table_name= ?";
+	
+	public final static String GET_FUNCTIONNAME_SQL="select Distinct name from user_source where type='FUNCTION'";
+	
+	public final static String GET_FUNCTION_SQL="select name,text from user_source where type='FUNCTION' and name=? order by Line";
+	
+	public final static String GET_FUNCTIONS_SQL = "select name,text from user_source where type='FUNCTION' order by name,Line";
 
 	public OracleMetaCrawler() {
 
@@ -321,6 +328,65 @@ public class OracleMetaCrawler extends AbstractMetaCrawler {
 			}
 		});
 	}
+	
+	public Set<String> getFunctionNames(){
+		String message="Get database(My sql) current user's function names";
+		Set<String> names=JDBCUtils.query(dbm, GET_FUNCTIONNAME_SQL, message, new ResultSetExtractor<Set<String>>() {
+
+			public Set<String> extractData(ResultSet rs) throws SQLException {
+				Set<String> names=new HashSet<String>();
+				while(rs.next()){
+					String name=rs.getString("name");
+					names.add(name);
+				}
+				return names;
+			}
+		});
+		return names;
+	}
+	
+	public Function getFunction(String name){
+		Assert.notNull(name, "procedure name can not be null");
+		String message = "Get database(Oracle) " + name + "'s definition information error!";
+		return JDBCUtils.query(dbm, GET_FUNCTION_SQL, message, new ResultSetExtractor<Function>() {
+
+			public Function extractData(ResultSet rs) throws SQLException {
+				Function p = null;
+				while (rs.next()) {
+					if (p == null) {
+						p = new Function();
+						p.setName(rs.getString("name"));
+					}
+					p.appendStr(rs.getString("text"));
+				}
+				return p;
+			}
+
+		}, name);
+	}
+	
+	public Map<String, Function> getFunctions(){
+		String message = "Get database(Oracle)  definition information error!";
+		return JDBCUtils.query(dbm, GET_FUNCTIONS_SQL, message, new ResultSetExtractor<Map<String, Function>>() {
+
+			public Map<String, Function> extractData(ResultSet rs) throws SQLException {
+				Map<String, Function> functions = new HashMap<String, Function>();
+				Function f;
+				while (rs.next()) {
+					String name = rs.getString("name");
+					f = functions.get(name);
+					if (f == null) {
+						f = new Function();
+						f.setName(rs.getString("name"));
+						functions.put(name, f);
+					}
+					f.appendStr(rs.getString("text"));
+				}
+				return functions;
+			}
+		});
+	}
+	
 
 	protected Map<String, Trigger> crawleTriggers(String tableName, SchemaInfo schemaInfo) {
 		String message = "Get database(My sql)  "+tableName+"'s triggers information error!";

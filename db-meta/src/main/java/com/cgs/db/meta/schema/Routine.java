@@ -32,7 +32,7 @@ public class Routine implements Serializable{
 	}
 
 	public String toString() {
-		return "Procedure [name=" + name + ", definition=" + getDefinition() + ", stringBuilder=" + stringBuilder + "]";
+		return "Procedure [name=" + name + ", definition=" + getDefinition()+"]";
 	}
 	
 }
