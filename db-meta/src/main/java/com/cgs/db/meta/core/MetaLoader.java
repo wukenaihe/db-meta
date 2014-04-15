@@ -112,11 +112,27 @@ public interface MetaLoader {
 	 */
 	Map<String, Trigger> getTriggers() throws DataAccessException;
 	
-	
+	/**
+	 * get currrent schema's access function names.
+	 * 
+	 * @return Set<String>
+	 */
 	Set<String> getFunctionNames() throws DataAccessException;
 	
+	/**
+	 * get function (current user can access)
+	 * 
+	 * @param functionName the trigger's name(not be null)
+	 * @return 
+	 */	
 	Function getFunction(String name) throws DataAccessException;
 	
+	
+	/**
+	 * get Functions (current user can access)
+	 * 
+	 * @return Map<String,Function>
+	 */
 	Map<String, Function> getFunctions() throws DataAccessException;
 	
 	
