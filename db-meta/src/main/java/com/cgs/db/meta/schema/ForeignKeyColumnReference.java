@@ -47,7 +47,7 @@ public class ForeignKeyColumnReference implements Comparable<ForeignKeyColumnRef
 			this.catalog = catalog;
 		}
 
-		@Override
+		
 		public String toString() {
 			return "ColumnReference [catalog=" + catalog + ", schema=" + schema + ", table=" + table + ", column=" + column + "]";
 		}

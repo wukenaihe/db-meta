@@ -67,6 +67,8 @@ public interface MetaLoader {
 	 */
 	Schema getSchema(SchemaInfoLevel level) throws DataAccessException;
 	
+	Schema getSchema(SchemaInfo schemaInfo,SchemaInfoLevel level) throws DataAccessException;
+	
 	
 	/**
 	 * get currrent schema's procedure names.

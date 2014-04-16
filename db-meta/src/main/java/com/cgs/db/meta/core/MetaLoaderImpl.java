@@ -135,18 +135,23 @@ public class MetaLoaderImpl implements MetaLoader {
 		}
 	}
 	
-	public Schema getSchema(SchemaInfo schemaInfo) {
+	
+	public Schema getSchema(SchemaInfo schemaInfo, SchemaInfoLevel level) throws DataAccessException {
 		Connection con = JDBCUtils.getConnection(dataSource);
 		MetaCrawler metaCrawler=null;
 		try{
 			metaCrawler=factory.newInstance(con);
-			return metaCrawler.getSchema(schemaInfo,SchemaInfoLevel.standard());
+			return metaCrawler.getSchema(schemaInfo,level);
 		}catch(DataAccessException e){
 			logger.debug(e.getMessage(),e);
 			throw new DatabaseMetaGetMetaException("Get tables error!", e);
 		}finally{
 			JDBCUtils.closeConnection(con);
 		}
+	}
+	
+	public Schema getSchema(SchemaInfo schemaInfo) {
+		return getSchema(schemaInfo,SchemaInfoLevel.standard());
 	}
 
 
@@ -309,6 +314,8 @@ public class MetaLoaderImpl implements MetaLoader {
 			JDBCUtils.closeConnection(con);
 		}
 	}
+
+
 
 	
 

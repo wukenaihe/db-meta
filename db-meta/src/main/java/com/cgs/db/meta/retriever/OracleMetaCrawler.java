@@ -13,7 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.meta.core.SchemaInfoLevel;

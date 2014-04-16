@@ -3,7 +3,6 @@ package com.cgs.db.meta.retriever;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,9 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.sql.DataSource;
 
-import oracle.net.aso.d;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,6 @@ import com.cgs.db.exception.DataAccessException;
 import com.cgs.db.exception.DatabaseMetaGetMetaException;
 import com.cgs.db.exception.NonTransientDataAccessException;
 import com.cgs.db.exception.SchemaInfoLevelException;
-import com.cgs.db.meta.core.MetaLoader;
 import com.cgs.db.meta.core.SchemaInfoLevel;
 import com.cgs.db.meta.schema.Column;
 import com.cgs.db.meta.schema.Constraint;
@@ -38,7 +35,6 @@ import com.cgs.db.meta.schema.Index;
 import com.cgs.db.meta.schema.IndexType;
 import com.cgs.db.meta.schema.PrimaryKey;
 import com.cgs.db.meta.schema.Privilege;
-import com.cgs.db.meta.schema.Procedure;
 import com.cgs.db.meta.schema.Schema;
 import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;

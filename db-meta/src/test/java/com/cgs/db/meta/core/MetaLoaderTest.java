@@ -193,7 +193,7 @@ public class MetaLoaderTest {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void getFunctions(){
 		Map<String, Function> functions=metaLoader.getFunctions();
 		System.out.println(functions);

@@ -37,7 +37,7 @@ public final class SchemaInfoLevel {
 	  
 	  public static SchemaInfoLevel standard(){
 		  SchemaInfoLevel standard=new SchemaInfoLevel();
-		  standard.setTag("Max");
+		  standard.setTag("standard");
 		  standard.setRetrieveTable(true);
 		  standard.setRetrieveTableColumns(true);
 		  standard.setRetrieveForeignKeys(true);

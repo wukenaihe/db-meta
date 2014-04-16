@@ -1,16 +1,12 @@
 package com.cgs.db.meta.retriever;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import oracle.net.aso.d;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
