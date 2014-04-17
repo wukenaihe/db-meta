@@ -1,25 +1,18 @@
 db-meta
 =======
 
-Db-meta is a free database schema discovery and easily tool. Db-meta now can support mysql, sql server and oracle. It is easy to extend. Db-meta's output meta is object, so it is easy to use in your project.
+  Db-meta is a free database schema discovery and easily tool. Db-meta now can support mysql, sql server and oracle. It is easy to extend. Db-meta's output meta is object, so it is easy to use in your project.
 
-Using db-meta with Maven
+Example Usage
 =======
+You can download the demo and run it by yourself.[db-meta-demo](https://github.com/wukenaihe/db-meta-example)
 
-```xml
-<repositories>
-		<repository>
-			<id>nexus-osc</id>
-			<name>local private nexus</name>
-			<url>http://maven.oschina.net/content/repositories/thirdparty/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-		<dependency>
-			<groupId>com.cgs.dbMeta</groupId>
-			<artifactId>db-meta</artifactId>
-			<version>0.0.1-Release</version>
-		</dependency>
-</repositories>
-```
+Architecture
+<h3>Meta data architecture</h3>
+
+![metaclass](https://raw.githubusercontent.com/wukenaihe/db-meta/master/db-meta/src/main/resources/metaclass.jpg "metaclass")
+
+<ul>
+ <li><b>Schema:</b>According to the [sql-92](http://www.contrib.andrew.cmu.edu/~shadow/sql/sql1992.txt),Catalogs are named collections of schemas in an SQL-environment. Just like "database->catalogs->schema->table", but Oracle only support schema, Mysql only support catalogs, Sql server support all of them. So <b>Schema</b> here is "catalog.schema".<li>
+ <li><b>Constraint:</b>Our Constraint only contain unique and check(Primary and Foreign are not in is)</li>
+</ul>
