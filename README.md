@@ -25,17 +25,42 @@ Architecture
 <h3>API</h3>
   In order to improve performance, avoid to crawle useless meta ,we use schemalevel.
   
-              |min   | standard | max |
---------------|------|----------|-----|
-JdbcDriverInfo| Yes  | Yes      | Yes |
-DatabaseInfo  | Yes  | Yes      | Yes |
-Table         | Yes  | Yes      | Yes |
-Column        | Yes  | Yes      | Yes |
-PrimaryKey    | Yes  | Yes      | Yes |
-Constraint    | Yes  | Yes      | Yes |
-View          | NO   | NO       | Yes |
-Index         | NO   | Yes      | Yes |
-ForeignKey    | NO   | Yes      | Yes |
-Privilege     | NO   | NO       | Yes |
-Trigger       | NO   | NO       | Yes |
+						              |min   | standard | max |
+						--------------|------|----------|-----|
+						JdbcDriverInfo| Yes  | Yes      | Yes |
+						DatabaseInfo  | Yes  | Yes      | Yes |
+						Table         | Yes  | Yes      | Yes |
+						Column        | Yes  | Yes      | Yes |
+						PrimaryKey    | Yes  | Yes      | Yes |
+						Constraint    | Yes  | Yes      | Yes |
+						View          | NO   | NO       | Yes |
+						Index         | NO   | Yes      | Yes |
+						ForeignKey    | NO   | Yes      | Yes |
+						Privilege     | NO   | NO       | Yes |
+						Trigger       | NO   | NO       | Yes |	
+
+
+  MetaLoader interface is what you need. 
+  
+Method                                                      |Description
+------------------------------------------------------------|-----------------------------------------------------------
+Set<String> getTableNames()                                 |Get table names（current Schema）
+Table getTable(String tableName)	                          |Get table（SchemaInfolevel.standard）
+Table getTable(String tableName,SchemaInfoLevel schemaLevel)|Get table
+Table getTable(String tableName,SchemaInfo schemaInfo)	    | 
+Set<SchemaInfo> getSchemaInfos()	                          |Get current schema information
+Schema getSchema()	                                        |Get current schema
+Schema getSchema(SchemaInfo schemaInfo)	                    |Get schema ,according to the SchemaInfo
+Set<String> getProcedureNames()	                            |Get the user's procedure names
+Procedure getProcedure(String procedureName)	              |Get the procedure information,according to the name
+Map<String,Procedure> getProcedures()	                      |Get the user's procedures
+Set<String> getTriggerNames()	                              |Get the user's trigger names
+Trigger getTrigger(String triggerName)	                    |Get the trigger information, according to the trigger name
+Map<String, Trigger> getTriggers()	                        |Get the user's triggers
+Set<String> getFunctionNames()	                            |Get the user's function names
+Function getFunction(String name)	                          |Get the function information, according to the  name
+Map<String, Function> getFunctions()	                      |Get the user's functions
+Database getDatabase()	                                    |Get all the meta data of the database(Standard)
+Database getDatabase(SchemaInfoLevel level)	                |Get all the meta data of the database
+  
 
