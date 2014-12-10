@@ -115,7 +115,9 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 		try {
 			ResultSet rs = dbm.getTables(catalog, schema, tableName, typeStr);
 			while (rs.next()) {
-				table.setName(rs.getString("TABLE_NAME"));
+				String tableN=rs.getString("TABLE_NAME");
+				if(!tableN.equals(tableName)) continue;
+				table.setName(tableN);
 				table.setComment(rs.getString("REMARKS"));
 				table.setTableType(TableType.fromString(rs.getString("TABLE_TYPE")));
 			}
@@ -211,6 +213,7 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 				rs = dbm.getColumns(schemaInfo.getCatalogName(), schemaInfo.getSchemaName(), tableName, null);
 			}
 			while (rs.next()) {
+				if(!rs.getString("TABLE_NAME").equals(tableName)) continue;
 				Column column = packColumn(rs);
 				columns.put(column.getName(), column);
 			}

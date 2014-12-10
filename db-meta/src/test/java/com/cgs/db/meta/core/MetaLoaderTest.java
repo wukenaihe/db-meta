@@ -21,6 +21,7 @@ import com.cgs.db.meta.schema.SchemaInfo;
 import com.cgs.db.meta.schema.Table;
 import com.cgs.db.meta.schema.Trigger;
 import com.cgs.db.util.PrintUtils;
+import com.mysql.jdbc.DatabaseMetaDataUsingInfoSchema;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:config.xml")
@@ -49,11 +50,12 @@ public class MetaLoaderTest {
 	}
 
 	@Test
-	@Ignore
+//	@Ignore
 	public void getTable() {
-		String tableName = "des_primary_key_des_column";// Oracle:"PUMP",mySql:"person_info":sql
+		String tableName = "_123";// Oracle:"PUMP",mySql:"person_info":sql
 													// server:"Dataset"
 		Table table = metaLoader.getTable(tableName);
+		
 		String result=PrintUtils.getTableInfo(table);
 		System.out.println(result);
 	}
@@ -67,6 +69,7 @@ public class MetaLoaderTest {
 		Table table = metaLoader.getTable(tableName,SchemaInfoLevel.max());
 		System.out.println(table);
 
+		
 		long endTime = System.currentTimeMillis();
 		System.out.println("耗时：" + (endTime - startTime));
 	}
