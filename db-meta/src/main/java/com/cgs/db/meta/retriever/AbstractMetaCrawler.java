@@ -409,7 +409,7 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 		String fk_cat = rs.getString("FKTABLE_CAT");
 		String fk_schema = rs.getString("FKTABLE_SCHEM");
 		String fk_table = rs.getString("FKTABLE_NAME");
-		String fk_column = rs.getString("PKCOLUMN_NAME");
+		String fk_column = rs.getString("FKCOLUMN_NAME");
 
 		int keySeq = rs.getInt("KEY_SEQ");
 
