@@ -4,7 +4,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +204,7 @@ public abstract class AbstractMetaCrawler implements MetaCrawler {
 	 * @return
 	 */
 	protected Map<String, Column> crawlColumnInfo(String tableName, SchemaInfo schemaInfo) {
-		Map<String, Column> columns = new HashMap<String, Column>();
+		Map<String, Column> columns = new LinkedHashMap<String, Column>();
 		ResultSet rs = null;
 		try {
 			if (schemaInfo == null) {
